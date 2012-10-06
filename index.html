@@ -17,12 +17,14 @@
 			attribute vec3 aPosition;
 			attribute vec4 aColor;
 			attribute vec3 aNormal;
+			attribute vec2 aTextureCoord;
 
 			uniform mat4 uProjectionMatrix;
 			uniform mat4 uModelviewMatrix;
 			uniform mat4 uNormalMatrix;
 
 			varying vec4 vColor;
+			varying vec2 vTextureCoord;
 
 			void main() {
 	        	gl_Position = uProjectionMatrix * uModelviewMatrix * vec4(aPosition, 1.0);
@@ -38,15 +40,21 @@
 
 				// Pass the color to the fragment shader.
 				vColor = vec4(aColor.rgb * lighting, aColor.a);
+
+				vTextureCoord = aTextureCoord;
 			}
 		</script>
 		<script id="3d-fragment-shader" type="x-shader/x-fragment">
 			precision highp float;
 
 			varying vec4 vColor;
+			varying vec2 vTextureCoord;
 
-			void main() {
-				gl_FragColor = vColor;
+			uniform sampler2D uSampler;
+
+			void main() {    
+				vec4 texel = texture2D(uSampler, vTextureCoord);
+				gl_FragColor = texel * vColor;
 			}
 		</script>
 	</head>

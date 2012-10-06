@@ -4,14 +4,19 @@
 	var positionLocation;
 	var colorLocation;
 	var normalLocation;
+	var textureCoordLocation;
 	var projectionMatrixLocation;
 	var modelviewMatrixLocation;
 	var normalMatrixLocation;
+	var samplerLocation;
 	
 	var cubeVerticesBuffer;
 	var cubeVerticesColorBuffer;
 	var cubeVerticesIndexBuffer;
 	var cubeVerticesNormalBuffer;
+	var cubeVerticesTextureCoordBuffer;
+	
+	var cubeTexture;
 
 	var translation = [ 0, 0, -6 ];
 	var rotation = [ 0, 0, 0 ];
@@ -30,6 +35,7 @@
 			initOpenGL(gl);
 			initShaders(gl);
 			initViewport(); // after initSahders()!
+			loadTextures(gl);
 			loadWorld(gl);
 			startLoop();
 		}
@@ -87,9 +93,30 @@
 		gl.enableVertexAttribArray(colorLocation);
 		normalLocation = gl.getAttribLocation(program, "aNormal");
 		gl.enableVertexAttribArray(normalLocation);
+		textureCoordLocation = gl.getAttribLocation(program, "aTextureCoord");
+		gl.enableVertexAttribArray(textureCoordLocation);
 		modelviewMatrixLocation = gl.getUniformLocation(program, "uModelviewMatrix");
 		projectionMatrixLocation = gl.getUniformLocation(program, "uProjectionMatrix");
 		normalMatrixLocation = gl.getUniformLocation(program, "uNormalMatrix");
+		samplerLocation = gl.getUniformLocation(program, "uSampler");
+	}
+	
+	function loadTextures(gl) {
+		cubeTexture = gl.createTexture();
+		var cubeImage = new Image();
+		cubeImage.onload = function() {
+			handleTextureLoaded(cubeImage, cubeTexture);
+		};
+		cubeImage.src = "images/texture.png";
+
+		function handleTextureLoaded(image, texture) {
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			gl.generateMipmap(gl.TEXTURE_2D);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+		}
 	}
 
 	function loadWorld(gl) {
@@ -201,11 +228,49 @@
 		
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
 				new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+		 
+		// Texture Coords
+		cubeVerticesTextureCoordBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesTextureCoordBuffer);
+		 
+		var textureCoordinates = [
+			// Front
+			0.0,	0.0,
+			1.0,	0.0,
+			1.0,	1.0,
+			0.0,	1.0,
+			// Back
+			0.0,	0.0,
+			1.0,	0.0,
+			1.0,	1.0,
+			0.0,	1.0,
+			// Top
+			0.0,	0.0,
+			1.0,	0.0,
+			1.0,	1.0,
+			0.0,	1.0,
+			// Bottom
+			0.0,	0.0,
+			1.0,	0.0,
+			1.0,	1.0,
+			0.0,	1.0,
+			// Right
+			0.0,	0.0,
+			1.0,	0.0,
+			1.0,	1.0,
+			0.0,	1.0,
+			// Left
+			0.0,	0.0,
+			1.0,	0.0,
+			1.0,	1.0,
+			0.0,	1.0
+		];
+		 
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 		
+		// Normals
 		cubeVerticesNormalBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesNormalBuffer);
-		 
-		// Normals
 		var vertexNormals = [
 		  // Front
 		   0.0,  0.0,  1.0,
@@ -274,18 +339,21 @@
 		mat4.transpose(matrix);
 		gl.uniformMatrix4fv(normalMatrixLocation, false, matrix);
 		
+		// Texture
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+		gl.uniform1i(samplerLocation, 0);
+		
 		renderBox(gl);
 	}
 	
 	function renderBox(gl) {
 		// Draw the cube by binding the array buffer to the cube's vertices
 		// array, setting attributes, and pushing it to GL.
-		
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesBuffer);
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 		
 		// Set the colors attribute for the vertices.
-		
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesColorBuffer);
 		gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
 		
@@ -293,8 +361,11 @@
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesNormalBuffer);
 		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 		
-		// Draw the cube.
+		// Bind the texture coords
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesTextureCoordBuffer);
+		gl.vertexAttribPointer(textureCoordLocation, 2, gl.FLOAT, false, 0, 0);
 		
+		// Draw the cube.
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
 		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 	}
