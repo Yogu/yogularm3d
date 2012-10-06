@@ -3,14 +3,15 @@
 (function() {
 	var positionLocation;
 	var colorLocation;
+	var normalLocation;
 	var projectionMatrixLocation;
 	var modelviewMatrixLocation;
+	var normalMatrixLocation;
 	
 	var cubeVerticesBuffer;
 	var cubeVerticesColorBuffer;
 	var cubeVerticesIndexBuffer;
-	var testVertexBuffer;
-	var testColorBuffer;
+	var cubeVerticesNormalBuffer;
 
 	var translation = [ 0, 0, -6 ];
 	var rotation = [ 0, 0, 0 ];
@@ -80,12 +81,15 @@
 		var program = webgl.createShaderProgram(gl, [ vertexShader, fragmentShader ]);
 		gl.useProgram(program);
 		
-		positionLocation = gl.getAttribLocation(program, "a_position");
+		positionLocation = gl.getAttribLocation(program, "aPosition");
 		gl.enableVertexAttribArray(positionLocation);
-		colorLocation = gl.getAttribLocation(program, "a_color");
+		colorLocation = gl.getAttribLocation(program, "aColor");
 		gl.enableVertexAttribArray(colorLocation);
-		modelviewMatrixLocation = gl.getUniformLocation(program, "u_modelview");
-		projectionMatrixLocation = gl.getUniformLocation(program, "u_projection");
+		normalLocation = gl.getAttribLocation(program, "aNormal");
+		gl.enableVertexAttribArray(normalLocation);
+		modelviewMatrixLocation = gl.getUniformLocation(program, "uModelviewMatrix");
+		projectionMatrixLocation = gl.getUniformLocation(program, "uProjectionMatrix");
+		normalMatrixLocation = gl.getUniformLocation(program, "uNormalMatrix");
 	}
 
 	function loadWorld(gl) {
@@ -197,6 +201,50 @@
 		
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
 				new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+		
+		cubeVerticesNormalBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesNormalBuffer);
+		 
+		// Normals
+		var vertexNormals = [
+		  // Front
+		   0.0,  0.0,  1.0,
+		   0.0,  0.0,  1.0,
+		   0.0,  0.0,  1.0,
+		   0.0,  0.0,  1.0,
+		   
+		  // Back
+		   0.0,  0.0, -1.0,
+		   0.0,  0.0, -1.0,
+		   0.0,  0.0, -1.0,
+		   0.0,  0.0, -1.0,
+		   
+		  // Top
+		   0.0,  1.0,  0.0,
+		   0.0,  1.0,  0.0,
+		   0.0,  1.0,  0.0,
+		   0.0,  1.0,  0.0,
+		   
+		  // Bottom
+		   0.0, -1.0,  0.0,
+		   0.0, -1.0,  0.0,
+		   0.0, -1.0,  0.0,
+		   0.0, -1.0,  0.0,
+		   
+		  // Right
+		   1.0,  0.0,  0.0,
+		   1.0,  0.0,  0.0,
+		   1.0,  0.0,  0.0,
+		   1.0,  0.0,  0.0,
+		   
+		  // Left
+		  -1.0,  0.0,  0.0,
+		  -1.0,  0.0,  0.0,
+		  -1.0,  0.0,  0.0,
+		  -1.0,  0.0,  0.0
+		];
+		 
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
 	}
 	
 	function update(elapsed) {
@@ -221,6 +269,11 @@
 		mat4.rotateX(matrix, rotation[0]);
 		gl.uniformMatrix4fv(modelviewMatrixLocation, false, matrix);
 		
+		// Normal matrix
+		mat4.inverse(matrix, mat4);
+		mat4.transpose(matrix);
+		gl.uniformMatrix4fv(normalMatrixLocation, false, matrix);
+		
 		renderBox(gl);
 	}
 	
@@ -235,6 +288,10 @@
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesColorBuffer);
 		gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+		
+		// Bind the normals
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesNormalBuffer);
+		gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 		
 		// Draw the cube.
 		
