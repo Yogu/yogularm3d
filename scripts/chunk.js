@@ -18,11 +18,21 @@ self.Chunk = function() {
 	var glTextureCoordBuffer;
 	var blockCount;
 	
+	var c = 14;
+	forEachBlock(function(x,y,z) { if (x < 16 && y < 14 && z < 13) setID(x,y,z, 1); });
+	
 	function id(x,y,z) {
 		if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
 			throw "Illegal argument for id(x,y,z)";
 		
 		return blockIDs[x * SIZE * SIZE + y * SIZE + z];
+	}
+	
+	function setID(x,y,z, id) {
+		if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
+			throw "Illegal argument for id(x,y,z)";
+		
+		blockIDs[x * SIZE * SIZE + y * SIZE + z] = id;
 	}
 	
 	function forEachBlock(callback) {
@@ -106,8 +116,11 @@ self.Chunk = function() {
 	}
 	
 	this.render = function(gl, options) {
-		if (changed)
+		if (changed) {
+			var d = new Date().getTime();
 			buildBuffers(gl);
+			console.log("Chunk build time: " + (new Date().getTime() - d) + " ms");
+		}
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, glVertexBuffer);
 		gl.vertexAttribPointer(options.positionLocation, 3, gl.FLOAT, false, 0, 0);
