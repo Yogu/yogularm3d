@@ -2,7 +2,6 @@
 
 (function() {
 	var positionLocation;
-	var colorLocation;
 	var normalLocation;
 	var textureCoordLocation;
 	var projectionMatrixLocation;
@@ -11,7 +10,6 @@
 	var samplerLocation;
 	
 	var cubeVerticesBuffer;
-	var cubeVerticesColorBuffer;
 	var cubeVerticesIndexBuffer;
 	var cubeVerticesNormalBuffer;
 	var cubeVerticesTextureCoordBuffer;
@@ -89,8 +87,6 @@
 		
 		positionLocation = gl.getAttribLocation(program, "aPosition");
 		gl.enableVertexAttribArray(positionLocation);
-		colorLocation = gl.getAttribLocation(program, "aColor");
-		gl.enableVertexAttribArray(colorLocation);
 		normalLocation = gl.getAttribLocation(program, "aNormal");
 		gl.enableVertexAttribArray(normalLocation);
 		textureCoordLocation = gl.getAttribLocation(program, "aTextureCoord");
@@ -174,36 +170,6 @@
 		// then use it to fill the current vertex buffer.
 		
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-		
-		// Now set up the colors for the faces. We'll use solid colors
-		// for each face.
-		
-		var colors = [
-			[1.0,	1.0,	1.0,	1.0],		// Front face: white
-			[1.0,	0.0,	0.0,	1.0],		// Back face: red
-			[0.0,	1.0,	0.0,	1.0],		// Top face: green
-			[0.0,	0.0,	1.0,	1.0],		// Bottom face: blue
-			[1.0,	1.0,	0.0,	1.0],		// Right face: yellow
-			[1.0,	0.0,	1.0,	1.0]		 // Left face: purple
-		];
-		
-		// Convert the array of colors into a table for all the vertices.
-		
-		var generatedColors = [];
-		
-		for (var j=0; j<6; j++) {
-			var c = colors[j];
-			
-			// Repeat each color four times for the four vertices of the face
-			
-			for (var i=0; i<4; i++) {
-				generatedColors = generatedColors.concat(c);
-			}
-		}
-		
-		cubeVerticesColorBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesColorBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(generatedColors), gl.STATIC_DRAW);
 
 		// Build the element array buffer; this specifies the indices
 		// into the vertex array for each face's vertices.
@@ -352,10 +318,6 @@
 		// array, setting attributes, and pushing it to GL.
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesBuffer);
 		gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-		
-		// Set the colors attribute for the vertices.
-		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesColorBuffer);
-		gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
 		
 		// Bind the normals
 		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesNormalBuffer);
