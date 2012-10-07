@@ -10,6 +10,11 @@ self.World = function() {
 		rotation: vec4.createFrom(0, 0, 0)
 	};
 	
+	this.chunks = [];
+	
+	this.chunks["0,0,0"] = new Chunk();
+	this.chunks["0,0,0"].blockIDs[0] = 1;
+	
 	this.update = function(elapsed, input) {
 		applyInput(elapsed, input);
 	};
