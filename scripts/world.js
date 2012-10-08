@@ -6,8 +6,8 @@ self.World = function() {
 	var PLAYER_TURN_SPEED = 0.5 * Math.PI;
 	
 	this.player = {
-		position: vec4.createFrom(0.5, 2, 0.5),
-		rotation: vec4.createFrom(0, 0, 0)
+		position: vec4.createFrom(-2.5, 2, 20.5),
+		rotation: vec4.createFrom(0, Math.PI * 1 / 4, 0)
 	};
 	
 	this.chunks = [];
