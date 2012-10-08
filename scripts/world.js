@@ -6,20 +6,19 @@ self.World = function() {
 	var PLAYER_VERTICAL_SPEED = 5;
 	var PLAYER_TURN_SPEED = 0.5 * Math.PI;
 	
-	this.player = {
-		position: vec4.createFrom(-2.5, 2, 20.5),
-		rotation: vec4.createFrom(0, Math.PI * 1 / 4, 0)
-	};
+	this.player = new Body(this);
+	this.player.position = vec4.createFrom(-2.5, 2, 20.5),
+	this.player.rotation = vec4.createFrom(0, Math.PI * 1 / 4, 0);
 	
-	this.chunks = [];
+	var chunks = [];
 	
 	this.update = function(elapsed, input) {
 		applyInput(elapsed, input);
 	};
 	
 	this.render = function(r) {
-		for (var name in self.chunks) {
-			var chunk = self.chunks[name];
+		for (var name in chunks) {
+			var chunk = chunks[name];
 			r.updateMatrix(function(matrix) {
 				matrix.translate(vec4.createFrom(Chunk.SIZE * chunk.x, Chunk.SIZE * chunk.y, Chunk.SIZE * chunk.z));
 				chunk.render(r);
@@ -28,12 +27,39 @@ self.World = function() {
 	};
 	
 	function addChunk(x,y,z) {
-		self.chunks[x+','+y+','+z] = new Chunk(x, y, z);
+		chunks[x+','+y+','+z] = new Chunk(x, y, z);
 	}
 	
 	function getChunk(x,y,z) {
-		return self.chunks[x+','+y+','+z];
+		return chunks[x+','+y+','+z];
 	}
+	
+	function getChunkCoordsOf(vector) {
+		return {
+			x: Math.floor(vector[0] / Chunk.SIZE),
+			y: Math.floor(vector[1] / Chunk.SIZE),
+			z: Math.floor(vector[2] / Chunk.SIZE)
+		};
+	}
+	
+	function getCoordsInChunkOf(vector) {
+		return {
+			x: Math.floor(vector[0]) % Chunk.SIZE,
+			y: Math.floor(vector[1]) % Chunk.SIZE,
+			z: Math.floor(vector[2]) % Chunk.SIZE
+		};
+	}
+	
+	function getIDAt(vector) {
+		var chunkCoords = getChunkCoordsOf(vector);
+		var coordsInChunk = getCoordsInChunkOf(vector);
+		var chunk = getChunk(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+		if (typeof(chunk) != 'undefined')
+			return chunk.getIDAt(coordsInChunk.x, coordsInChunk.y, coordsInChunk.z);
+		else
+			return 0;
+	}
+	this.getIDAt = getIDAt;
 	
 	for (var x = 0; x < 8; x++) {
 		for (var z = 0; z < 8; z++) {

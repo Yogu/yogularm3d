@@ -23,6 +23,8 @@
 		} else
 			alert('Failed to initialize WebGL');
 		
+		window.world = world;
+		
 		function initViewport() {
 			window.addEventListener('resize', updateViewport);
 			function updateViewport() {

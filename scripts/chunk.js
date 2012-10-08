@@ -28,7 +28,7 @@
 				var b = y + self.y * SIZE;
 				var c = z + self.z * SIZE;
 				
-				if (Math.cos((a + b) * (b + a) * (c - a)) < -0.9)
+				if (b == 0)
 						setID(x,y,z, 1); 
 			});
 		
@@ -38,6 +38,7 @@
 			
 			return blockIDs[x * SIZE * SIZE + y * SIZE + z];
 		}
+		this.getIDAt = id;
 		
 		function setID(x,y,z, id) {
 			if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
