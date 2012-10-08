@@ -18,8 +18,7 @@ self.Chunk = function() {
 	var glTextureCoordBuffer;
 	var blockCount;
 	
-	var c = 14;
-	forEachBlock(function(x,y,z) { if (x < 16 && y < 14 && z < 13) setID(x,y,z, 1); });
+	forEachBlock(function(x,y,z) { if (((x - 2) * (y + 8) * (z + 3)) % 16 == 0) setID(x,y,z, 1); });
 	
 	function id(x,y,z) {
 		if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
@@ -56,20 +55,21 @@ self.Chunk = function() {
 		// Allocate RAM and fill those buffers
 		
 		var vertexBuffer = new Float32Array(blockCount * cubeVertices.length);
-		var vertexIndexBuffer = new Float32Array(blockCount * cubeVertexIndices.length);
+		// note: maximum is 65536 vertices because Uint32Array not supported by GL ES
+		var vertexIndexBuffer = new Uint16Array(blockCount * cubeVertexIndices.length);
 		var textureCoordBuffer = new Float32Array(blockCount * cubeTextureCoordinates.length);
 		var normalBuffer = new Float32Array(blockCount * cubeVertexNormals.length);
 		
 		var blockIndex = 0;
 		forEachBlock(function(x,y,z) {
-			if (id(x,y,z) > 0){
+			if (id(x,y,z) > 0) {
 				// Vertices
 				// Copy the vertex template (for a 1x1x1 block at (0,0,0)) and adjust the
 				// coordinates to match the current block's position
-				for (var i = 0; i < cubeVertices.length / 3; i += 3) {
-					vertexBuffer[blockIndex * cubeVertices.length + 3 * i] = cubeVertices[i] + x;
-					vertexBuffer[blockIndex * cubeVertices.length + 3 * i + 1] = cubeVertices[i] + y;
-					vertexBuffer[blockIndex * cubeVertices.length + 3 * i + 2] = cubeVertices[i] + z;
+				for (var i = 0; i < cubeVertices.length / 3; i++) {
+					vertexBuffer[blockIndex * cubeVertices.length + 3 * i] = cubeVertices[3 * i] + x;
+					vertexBuffer[blockIndex * cubeVertices.length + 3 * i + 1] = cubeVertices[3 * i + 1] + y;
+					vertexBuffer[blockIndex * cubeVertices.length + 3 * i + 2] = cubeVertices[3 * i + 2] + z;
 				}
 				
 				// VertexIndices
@@ -77,7 +77,7 @@ self.Chunk = function() {
 				// add the current block's vertex index offset
 				for (var i = 0; i < cubeVertexIndices.length; i++) {
 					vertexIndexBuffer[blockIndex * cubeVertexIndices.length + i]
-						= cubeVertexIndices[i] + blockIndex * cubeVertices.length;
+						= cubeVertexIndices[i] + (blockIndex * cubeVertices.length / 3);
 				}
 				
 				// VertexTextureCoordinates
@@ -120,6 +120,8 @@ self.Chunk = function() {
 			var d = new Date().getTime();
 			buildBuffers(gl);
 			console.log("Chunk build time: " + (new Date().getTime() - d) + " ms");
+			console.log(blockCount + " blocks");
+			console.log((blockCount * cubeVertexIndices.length / 3) + " triangles");
 		}
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, glVertexBuffer);
