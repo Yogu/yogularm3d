@@ -47,7 +47,7 @@
 				elapsedSum += elapsed;
 				elapsedCount++;
 				if (elapsedSum >= 0.5) {
-					statusLabel.textContent = (elapsedCount / elapsedSum).toFixed(1) + ' FPS';
+					statusLabel.textContent = (elapsedCount / elapsedSum).toFixed(1) + ' FPS, ' + renderer.triangleCount + ' triangles';
 					elapsedSum = 0;
 					elapsedCount = 0;
 				}

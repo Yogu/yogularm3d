@@ -1,6 +1,8 @@
 "use strict";
 
 self.Renderer = function(gl, world) {
+	var self = this;
+	
 	var positionLocation;
 	var normalLocation;
 	var textureCoordLocation;
@@ -76,7 +78,78 @@ self.Renderer = function(gl, world) {
 	this.updateProjection = function(width, height) {
 		var matrix = mat4.perspective(45, width / height, NEAR_CLIPPING, FAR_CLIPPING);
 		gl.uniformMatrix4fv(projectionMatrixLocation, false, matrix);
+	};
+
+	var matrix = mat4.identity();
+	var matrices = [];
+	
+	function pushMatrix() {
+		matrices.push(mat4.create(matrix));
 	}
+	
+	function popMatrix() {
+		matrix = matrices.pop();
+	}
+	
+	var renderFunctions = {
+		gl: gl,
+			
+		updateMatrix: function(callback) {
+			pushMatrix();
+			try {
+				callback(matrixFunctions);
+			} finally {
+				popMatrix();
+			}
+		},
+
+		createBuffer: function(type, buffer) {
+			var glBuffer = gl.createBuffer();
+			gl.bindBuffer(type, glBuffer);
+			gl.bufferData(type, buffer, gl.STATIC_DRAW);
+			return glBuffer;
+		},
+		
+		drawElements: function(options) {
+			applyMatrix();
+			
+			gl.bindBuffer(gl.ARRAY_BUFFER, options.vertices);
+			gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+			
+			gl.bindBuffer(gl.ARRAY_BUFFER, options.normals);
+			gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+			
+			// Bind the texture coords
+			gl.bindBuffer(gl.ARRAY_BUFFER, options.textureCoords);
+			gl.vertexAttribPointer(textureCoordLocation, 2, gl.FLOAT, false, 0, 0);
+			
+			// Draw the cube.
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, options.vertexIndices);
+			gl.drawElements(gl.TRIANGLES, options.vertexCount, gl.UNSIGNED_SHORT, 0);
+			
+			triangleCount += options.vertexCount / 3;
+		}
+	};
+	
+	var matrixFunctions = {
+		translate: function(vector) {
+			mat4.translate(matrix, vector);
+		},
+
+		rotateX: function(angle) {
+			//mat4.rotateX(matrix, angle);
+		},
+
+		rotateY: function(angle) {
+			//mat4.rotateY(matrix, angle);
+		},
+
+		rotateZ: function(angle) {
+			//mat4.rotateZ(matrix, angle);
+		}
+	};
+	
+	var triangleCount;
 	
 	this.render = function() {
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -86,22 +159,18 @@ self.Renderer = function(gl, world) {
 		gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
 		gl.uniform1i(samplerLocation, 0);
 		
-		var matrix = mat4.identity();
+		matrix = mat4.identity();
 		mat4.rotateZ(matrix, world.player.rotation[2]);
 		mat4.rotateY(matrix, world.player.rotation[1]);
 		mat4.rotateX(matrix, world.player.rotation[0]);
 		mat4.translate(matrix, vec3.negate(world.player.position, vec3.create()));
 
-		applyMatrix(matrix);
-		var options = {
-			positionLocation: positionLocation,
-			normalLocation: normalLocation,
-			textureCoordLocation: textureCoordLocation
-		};
-		world.chunks["0,0,0"].render(gl, options);
+		triangleCount = 0;
+		world.render(renderFunctions);
+		self.triangleCount = triangleCount;
 	};
 	
-	function applyMatrix(matrix) {
+	function applyMatrix() {
 		gl.uniformMatrix4fv(modelviewMatrixLocation, false, matrix);
 		
 		// Normal matrix

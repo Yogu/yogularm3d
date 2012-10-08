@@ -3,6 +3,7 @@
 self.World = function() {
 	var self = this;
 	var PLAYER_SPEED = 5;
+	var PLAYER_VERTICAL_SPEED = 5;
 	var PLAYER_TURN_SPEED = 0.5 * Math.PI;
 	
 	this.player = {
@@ -12,12 +13,33 @@ self.World = function() {
 	
 	this.chunks = [];
 	
-	this.chunks["0,0,0"] = new Chunk();
-	this.chunks["0,0,0"].blockIDs[0] = 1;
-	
 	this.update = function(elapsed, input) {
 		applyInput(elapsed, input);
 	};
+	
+	this.render = function(r) {
+		for (var name in self.chunks) {
+			var chunk = self.chunks[name];
+			r.updateMatrix(function(matrix) {
+				matrix.translate(vec4.createFrom(Chunk.SIZE * chunk.x, Chunk.SIZE * chunk.y, Chunk.SIZE * chunk.z));
+				chunk.render(r);
+			});
+		}
+	};
+	
+	function addChunk(x,y,z) {
+		self.chunks[x+','+y+','+z] = new Chunk(x, y, z);
+	}
+	
+	function getChunk(x,y,z) {
+		return self.chunks[x+','+y+','+z];
+	}
+	
+	for (var x = 0; x < 8; x++) {
+		for (var z = 0; z < 8; z++) {
+			addChunk(x, 0, z);
+		}
+	}
 	
 	function applyInput(elapsed, input) {
 		var speed = input.isUp() ? -PLAYER_SPEED : input.isDown() ? PLAYER_SPEED : 0;
@@ -29,5 +51,9 @@ self.World = function() {
 		if (turnSpeed != 0) {
 			self.player.rotation[1] += turnSpeed * elapsed;
 		}
+		
+		var verticalSpeed = input.isPageUp() ? PLAYER_VERTICAL_SPEED : input.isPageDown() ? -PLAYER_VERTICAL_SPEED : 0;
+		if (verticalSpeed != 0)
+			self.player.position[1] += verticalSpeed * elapsed;
 	}
 };
