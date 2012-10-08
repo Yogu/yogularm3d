@@ -4,11 +4,15 @@
 	window.onload = init;
 	
 	function init() {
-		var canvas = document.getElementById("canvas");
+		var canvas = document.getElementById('canvas');
+		var statusLabel = document.getElementById('status');
 		var gl = webgl.init(canvas);
 		var world;
 		var renderer;
 		var input;
+		
+		var elapsedSum = 0;
+		var elapsedCount = 0;
 		
 		if (gl) {
 			world = new World();
@@ -38,6 +42,15 @@
 				world.update(elapsed, input);
 				renderer.render();
 				requestAnimFrame(iteration, canvas);
+				
+				// Display FPS
+				elapsedSum += elapsed;
+				elapsedCount++;
+				if (elapsedSum >= 0.5) {
+					statusLabel.textContent = (elapsedCount / elapsedSum).toFixed(1) + ' FPS';
+					elapsedSum = 0;
+					elapsedCount = 0;
+				}
 			}
 			iteration();
 		}
