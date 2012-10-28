@@ -160,9 +160,10 @@ self.Renderer = function(gl, world) {
 		gl.uniform1i(samplerLocation, 0);
 		
 		matrix = mat4.identity();
+		// Order is important: first x-axis, then y-axis
+		mat4.rotateX(matrix, world.player.rotation[0]);
 		mat4.rotateZ(matrix, world.player.rotation[2]);
 		mat4.rotateY(matrix, world.player.rotation[1]);
-		mat4.rotateX(matrix, world.player.rotation[0]);
 		mat4.translate(matrix, vec3.negate(world.player.position, vec3.create()));
 
 		triangleCount = 0;

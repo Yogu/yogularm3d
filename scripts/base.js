@@ -31,6 +31,18 @@ self.debug = new (function() {
 		return output;
 	};
 	
+	this.formatVector = function(vector, digits) {
+		if (typeof(digits) == 'undefined')
+			digits = 2;
+		var output = "[";
+		for (var i = 0; i < 3; i++) {
+			if (i > 0)
+				output += ", ";
+			output += vector[i].toFixed(digits);
+		}
+		return output + "]";
+	}
+	
 	this.log = function(msg) {
 		if (window.console && window.console.log) {
 			window.console.log(msg);

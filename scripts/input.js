@@ -8,7 +8,8 @@ self.Input = function() {
 		LEFT: 37,
 		RIGHT: 39,
 		PAGE_UP: 33,
-		PAGE_DOWN: 34
+		PAGE_DOWN: 34,
+		A: 65,
 	}
 	
 	document.addEventListener('keydown', function(event) {
@@ -29,4 +30,5 @@ self.Input = function() {
 	this.isRight = function() { return self.pressedKeys[keys.RIGHT];};
 	this.isPageUp = function() { return self.pressedKeys[keys.PAGE_UP];};
 	this.isPageDown = function() { return self.pressedKeys[keys.PAGE_DOWN];};
+	this.isJump = function() { return self.pressedKeys[keys.A];};
 };
