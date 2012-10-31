@@ -129,6 +129,7 @@
 		var currentForce = vec3.create();
 		
 		this.getImpact = function(target) {
+			return target;
 			var impact = this.position;
 			for (var axis = 0; axis < 3; axis++) {
 				if (target[axis] != self.position[axis]) {

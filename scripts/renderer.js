@@ -28,10 +28,10 @@ self.Renderer = function(gl, world) {
 		gl.clearDepth(1.0);
 		
 		// Near things obscure far things
-		//gl.enable(gl.DEPTH_TEST);
+		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);
 		
-		//gl.enable(gl.CULL_FACE);
+		gl.enable(gl.CULL_FACE);
 	}
 	
 	//
@@ -146,6 +146,10 @@ self.Renderer = function(gl, world) {
 
 		rotateZ: function(angle) {
 			//mat4.rotateZ(matrix, angle);
+		},
+		
+		scale: function(vector) {
+			mat4.scale(matrix, vector);
 		}
 	};
 	

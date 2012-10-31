@@ -34,6 +34,7 @@ self.World = function() {
 				chunk.render(r);
 			});
 		}*/
+		
 		model.render(r);
 	};
 	
