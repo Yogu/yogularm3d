@@ -2,23 +2,18 @@
 
 self.Model = function(url) { 
 	var self = this;
-	var isReady = false;
-	var vertexBuffer = [];
-	var vertexIndexBuffer = [];
 	var vertexCount;
-	
-	var buffersCreated = false;
-	var glVertexBuffer;
-	var glVertexIndexBuffer;
-	var glNormalBuffer;
-	var glTextureCoordBuffer;
-	
+	var mesh = null;
 
-	this.isReady = function() { return isReady; };
+	this.isReady = function() { return mesh != null; };
 	
 	loadObjAsync(url);
 	
 	function loadObjAsync(url) {
+		var vertexBuffer = [];
+		var normalBuffer = [];
+		var vertexIndexBuffer = [];
+		var textureCoordBuffer = [];
 		
 		$.ajax({
 			url: url,
@@ -26,7 +21,13 @@ self.Model = function(url) {
 				try {
 					parseFile(data);
 					vertexCount = vertexIndexBuffer.length;
-					isReady = true;
+
+					mesh = new Mesh({
+						vertices: vertexBuffer,
+						vertexIndices: vertexIndexBuffer,
+						textureCoords: textureCoordBuffer,
+						normals: normalBuffer
+					});
 				} catch (e) {
 					console.log("Failed to parse model " + url + ": " + e);
 				}
@@ -61,6 +62,10 @@ self.Model = function(url) {
 					else
 						throw "Corrupt OBJ file: face with " + newIndexData.length + " vertices; only triangles allowed. "+
 							"Line: " + line;
+					
+					// Add dummy attributes
+					normalBuffer.push(0, 0, 0);
+					textureCoordBuffer.push(0,0);
 					break;
 				}
 			}
@@ -68,31 +73,7 @@ self.Model = function(url) {
 	}
 	
 	this.render = function(r) {
-		if (isReady) {
-			if (!buffersCreated) {
-				try {
-					createBuffers(r);
-					buffersCreated = true;
-				} catch (e) {
-					console.log("Error creating buffers for model: " + e);
-					return;
-				}
-			}
-
-			r.drawElements({
-				vertices: glVertexBuffer,
-				//normals: glNormalBuffer,
-				//textureCoords: glTextureCoordBuffer,
-				vertexIndices: glVertexIndexBuffer,
-				vertexCount: vertexCount
-			});
-		}
+		if (mesh != null)
+			mesh.render(r);
 	};
-	
-	function createBuffers(r) {
-		glVertexBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, utils.arrayToFloat32Array(vertexBuffer));
-		glVertexIndexBuffer = r.createBuffer(r.gl.ELEMENT_ARRAY_BUFFER, utils.arrayToUint16Array(vertexIndexBuffer));
-		//glNormalBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, normalBuffer);
-		//glTextureCoordBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, textureCoordBuffer);
-	}
 };

@@ -15,11 +15,7 @@
 		var blockFlags = this.blockFlags;
 		
 		var changed = true; // build buffers initially
-	
-		var glVertexBuffer;
-		var glVertexIndexBuffer;
-		var glNormalBuffer;
-		var glTextureCoordBuffer;
+		var mesh = null;
 		var blockCount;
 		
 		forEachBlock(
@@ -57,7 +53,7 @@
 			}
 		}
 		
-		function buildBuffers(r) {
+		function createMesh() {
 			blockCount = 0;
 			var vertices = [];
 			forEachBlock(function(x,y,z) {
@@ -111,32 +107,22 @@
 				}
 			});
 			
-			// Push the buffers to the VRAM
-			glVertexBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, vertexBuffer);
-			glVertexIndexBuffer = r.createBuffer(r.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-			glNormalBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, normalBuffer);
-			glTextureCoordBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, textureCoordBuffer);
-			
-			// buffers are up-to-date
+			// mesh is up-to-date
 			changed = false;
+			
+			return new Mesh({
+				vertices: vertexBuffer,
+				vertexIndices: vertexIndexBuffer,
+				textureCoords: textureCoordBuffer,
+				normals: normalBuffer
+			});
 		}
 		
 		this.render = function(r) {
-			if (changed) {
-				var d = new Date().getTime();
-				buildBuffers(r);
-				console.log("Chunk build time: " + (new Date().getTime() - d) + " ms");
-				console.log(blockCount + " blocks");
-				console.log((blockCount * cubeVertexIndices.length / 3) + " triangles");
-			}
-	
-			r.drawElements({
-				vertices: glVertexBuffer,
-				normals: glNormalBuffer,
-				textureCoords: glTextureCoordBuffer,
-				vertexIndices: glVertexIndexBuffer,
-				vertexCount: blockCount * cubeVertexIndices.length
-			});
+			if (changed || !mesh)
+				mesh = createMesh();
+			
+			mesh.render(r);
 		};
 		
 		// Cube Data
