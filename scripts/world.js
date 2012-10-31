@@ -12,26 +12,29 @@ self.World = function() {
 	var PLAYER_TURN_SPEED = 0.5 * Math.PI;
 	
 	this.player = new Body(this);
-	this.player.position = vec3.createFrom(2.5, 2, 0.5),
-	this.player.rotation = vec3.createFrom(0, Math.PI * 1 / 4, 0);
+	this.player.position = vec3.createFrom(-8, 2, 5),
+	this.player.rotation = vec3.createFrom(0, 1, 0);
 	this.player.boundingBox.minVector = vec3.createFrom(-0.2, -0.2, -0.2);
 	this.player.boundingBox.maxVector = vec3.createFrom(0.2, 0.2, 0.2);
+
+	var model = new Model('models/yogu.obj');
 	
 	var chunks = [];
 	
 	this.update = function(elapsed, input) {
-		self.player.update(elapsed);
+		//self.player.update(elapsed);
 		applyInput(elapsed, input);
 	};
 	
 	this.render = function(r) {
-		for (var name in chunks) {
+		/*for (var name in chunks) {
 			var chunk = chunks[name];
 			r.updateMatrix(function(matrix) {
 				matrix.translate(vec4.createFrom(Chunk.SIZE * chunk.x, Chunk.SIZE * chunk.y, Chunk.SIZE * chunk.z));
 				chunk.render(r);
 			});
-		}
+		}*/
+		model.render(r);
 	};
 	
 	function addChunk(x,y,z) {

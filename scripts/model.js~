@@ -1,0 +1,9 @@
+"use strict";
+
+self.Model = function(fileName) { 
+	loadObj(fileName);
+	
+	function loadObj(fileName) {
+		
+	}
+};

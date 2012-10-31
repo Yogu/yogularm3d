@@ -15,7 +15,6 @@
 		<script type="text/javascript" src="scripts/input.js"></script>
 		<script type="text/javascript" src="scripts/chunk.js"></script>
 		<script type="text/javascript" src="scripts/physics.js"></script>
-		<script type="text/javascript" src="scripts/model.js"></script>
 		<script type="text/javascript" src="scripts/main.js"></script>
 		
 		<script id="3d-vertex-shader" type="x-shader/x-vertex">
@@ -58,7 +57,7 @@
 
 			void main() {    
 				vec4 texel = texture2D(uSampler, vTextureCoord);
-				gl_FragColor = vec4(1,1,1,1);// vec4(texel.rgb * vLighting, texel.a);
+				gl_FragColor = vec4(texel.rgb * vLighting, texel.a);
 			}
 		</script>
 	</head>

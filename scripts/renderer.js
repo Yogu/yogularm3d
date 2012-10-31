@@ -28,10 +28,10 @@ self.Renderer = function(gl, world) {
 		gl.clearDepth(1.0);
 		
 		// Near things obscure far things
-		gl.enable(gl.DEPTH_TEST);
+		//gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);
 		
-		gl.enable(gl.CULL_FACE);
+		//gl.enable(gl.CULL_FACE);
 	}
 	
 	//
@@ -116,14 +116,14 @@ self.Renderer = function(gl, world) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.vertices);
 			gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 			
-			gl.bindBuffer(gl.ARRAY_BUFFER, options.normals);
+			/*gl.bindBuffer(gl.ARRAY_BUFFER, options.normals);
 			gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
 			
 			// Bind the texture coords
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.textureCoords);
-			gl.vertexAttribPointer(textureCoordLocation, 2, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribPointer(textureCoordLocation, 2, gl.FLOAT, false, 0, 0);*/
 			
-			// Draw the cube.
+			// Draw the triangles.
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, options.vertexIndices);
 			gl.drawElements(gl.TRIANGLES, options.vertexCount, gl.UNSIGNED_SHORT, 0);
 			

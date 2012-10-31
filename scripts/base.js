@@ -18,6 +18,24 @@ self.geo = new (function() {
 	};
 })();
 
+self.utils = {
+	arrayToBuffer: function(array, bufferType) {
+		var buffer = new bufferType(array.length);
+		for (var i = 0; i < array.length; i++) {
+			buffer[i] = array[i];
+		}
+		return buffer;
+	},
+		
+	arrayToFloat32Array: function(array) {
+		return self.utils.arrayToBuffer(array, Float32Array);
+	},
+		
+	arrayToUint16Array: function(array) {
+		return self.utils.arrayToBuffer(array, Uint16Array);
+	}
+};
+
 self.debug = new (function() {
 	this.formatMatrix = function(matrix, digits) {
 		if (typeof(digits) == 'undefined')
