@@ -3,28 +3,23 @@
 self.webgl = new (function() {
 	var self = this;
 	
+	window.onerror = function(msg, url, line) {
+		alert('Error: ' + msg + (url ? (' (in ' +url + ':' + line+')') : ''));
+	};
+	
 	var GET_A_WEBGL_BROWSER = ''
-			+ 'This page requires a browser that supports WebGL.<br/>'
-			+ '<a href="http://get.webgl.org">Click here to upgrade your browser.</a>';
+			+ 'This page requires a browser that supports WebGL. http://get.webgl.org - upgrade your browser';
 	var OTHER_PROBLEM = ''
-			+ "It doesn't appear your computer can support WebGL.<br/>"
-			+ '<a href="http://get.webgl.org/troubleshooting/">Click here for more information.</a>';
+			+ "It doesn't appear your computer can support WebGL. http://get.webgl.org/troubleshooting/ -  more information";
 	
 	this.init = function(canvas, opt_attribs) {
-		function showLink(str) {
-			var container = canvas.parentNode;
-			if (container) {
-				container.innerHTML = makeFailHTML(str);
-			}
-		}
-		;
 		if (!window.WebGLRenderingContext) {
-			showLink(GET_A_WEBGL_BROWSER);
+			alert(GET_A_WEBGL_BROWSER);
 			return null;
 		}
 		var context = create3DContext(canvas, opt_attribs);
 		if (!context) {
-			showLink(OTHER_PROBLEM);
+			alert(OTHER_PROBLEM);
 		}
 		return context;
 	};

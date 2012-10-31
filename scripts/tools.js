@@ -12,6 +12,7 @@
 				window.console.log(msg);
 			}
 		}
+		alert(msg);
 	};
 	var loggingOff = function() {
 		log = function() {
@@ -27,35 +28,22 @@
 		}
 		return "0x" + value.toString(16);
 	};
-	var makeFailHTML = function(msg) {
-		return ''
-				+ '<table style="background-color: #8CE; width: 100%; height: 100%;"><tr>'
-				+ '<td align="center">'
-				+ '<div style="display: table-cell; vertical-align: middle;">'
-				+ '<div style="">' + msg + '</div>' + '</div>'
-				+ '</td></tr></table>';
-	};
 	var GET_A_WEBGL_BROWSER = ''
-			+ 'This page requires a browser that supports WebGL.<br/>'
-			+ '<a href="http://get.webgl.org">Click here to upgrade your browser.</a>';
+			+ 'This page requires a browser that supports WebGL. http://get.webgl.org';
 	var OTHER_PROBLEM = ''
-			+ "It doesn't appear your computer can support WebGL.<br/>"
-			+ '<a href="http://get.webgl.org/troubleshooting/">Click here for more information.</a>';
+			+ "It doesn't appear your computer can support WebGL. http://get.webgl.org/troubleshooting";
 	var setupWebGL = function(canvas, opt_attribs) {
 		function showLink(str) {
-			var container = canvas.parentNode;
-			if (container) {
-				container.innerHTML = makeFailHTML(str);
-			}
+			alert(str);
 		}
 		;
 		if (!window.WebGLRenderingContext) {
-			showLink(GET_A_WEBGL_BROWSER);
+			alert(GET_A_WEBGL_BROWSER);
 			return null;
 		}
 		var context = create3DContext(canvas, opt_attribs);
 		if (!context) {
-			showLink(OTHER_PROBLEM);
+			alert(OTHER_PROBLEM);
 		}
 		return context;
 	};
