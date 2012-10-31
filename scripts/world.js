@@ -24,7 +24,6 @@ self.World = function() {
 	this.update = function(elapsed, input) {
 		//self.player.update(elapsed);
 		applyInput(elapsed, input);
-		throw "hi";
 	};
 	
 	this.render = function(r) {
