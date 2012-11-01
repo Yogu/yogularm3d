@@ -21,7 +21,7 @@ self.materials = new (function() {
 		if ('texture' in material)
 			bindTexture(r, material.texture);
 		else
-			r.bindTexture(null);
+			r.bindTexture(null); 
 		if ('color' in material)
 			r.setColor(material.color);
 	}
