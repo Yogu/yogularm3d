@@ -32,6 +32,13 @@ self.utils = {
 
 	arrayToUint16Array : function(array) {
 		return self.utils.arrayToBuffer(array, Uint16Array);
+	},
+	
+	ensureIsBuffer: function(array, bufferType) {
+		if (array.constructor == bufferType)
+			return array;
+		else
+			return self.utils.arrayToBuffer(array, bufferType); 
 	}
 };
 
@@ -84,3 +91,7 @@ Array.max = function(array) {
 Array.min = function(array) {
 	return Math.min.apply(null, array)
 }
+
+$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+	debug.error('AJAX error: ' + thrownError);
+});

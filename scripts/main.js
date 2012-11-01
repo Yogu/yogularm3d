@@ -4,6 +4,7 @@
 	window.onload = init;
 	
 	function init() {
+		console.log('Initializing WebGL...');
 		var canvas = document.getElementById('canvas');
 		var statusLabel = document.getElementById('status');
 		var gl = webgl.init(canvas);
@@ -15,11 +16,13 @@
 		var elapsedCount = 0;
 		
 		if (gl) {
+			console.log('Initializing game...');
 			world = new World();
 			renderer = new Renderer(gl, world);
 			input = new Input();
 			initViewport();
-			startLoop();
+			console.log('Waiting for resources to load...');
+			$(materials).on('load', startLoop);
 		} else
 			alert('Failed to initialize WebGL');
 		
@@ -37,6 +40,7 @@
 		}
 		
 		function startLoop() {
+			console.log('Render loop started');
 			var last = new Date().getTime();
 			function iteration() {
 				var elapsed = (new Date().getTime() - last) / 1000;

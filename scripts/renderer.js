@@ -3,22 +3,25 @@
 self.Renderer = function(gl, world) {
 	var self = this;
 	
-	var positionLocation;
-	var normalLocation;
-	var textureCoordLocation;
-	var projectionMatrixLocation;
-	var modelviewMatrixLocation;
-	var normalMatrixLocation;
-	var samplerLocation;
+	var attributes = {
+		position: null,
+		normal: null,
+		textureCoords: null
+	};
 	
-	var cubeTexture;
+	var uniforms = {
+		projectionMatrix: null,
+		modelviewMatrix: null,
+		normalMatrix: null,
+		color: null,
+		sampler: null
+	};
 	
 	var NEAR_CLIPPING = 0.1;
 	var FAR_CLIPPING = 100;
 	
 	initOpenGL();
 	initShaders();
-	loadTextures();
 	
 	// Init configuration
 	function initOpenGL() {
@@ -45,39 +48,22 @@ self.Renderer = function(gl, world) {
 		var program = webgl.createShaderProgram(gl, [ vertexShader, fragmentShader ]);
 		gl.useProgram(program);
 		
-		positionLocation = gl.getAttribLocation(program, "aPosition");
-		gl.enableVertexAttribArray(positionLocation);
-		normalLocation = gl.getAttribLocation(program, "aNormal");
-		gl.enableVertexAttribArray(normalLocation);
-		textureCoordLocation = gl.getAttribLocation(program, "aTextureCoord");
-		gl.enableVertexAttribArray(textureCoordLocation);
-		modelviewMatrixLocation = gl.getUniformLocation(program, "uModelviewMatrix");
-		projectionMatrixLocation = gl.getUniformLocation(program, "uProjectionMatrix");
-		normalMatrixLocation = gl.getUniformLocation(program, "uNormalMatrix");
-		samplerLocation = gl.getUniformLocation(program, "uSampler");
-	}
-	
-	function loadTextures() {
-		cubeTexture = gl.createTexture();
-		var cubeImage = new Image();
-		cubeImage.onload = function() {
-			handleTextureLoaded(cubeImage, cubeTexture);
-		};
-		cubeImage.src = "images/texture.png";
-
-		function handleTextureLoaded(image, texture) {
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-			gl.generateMipmap(gl.TEXTURE_2D);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-		}
+		attributes.position = gl.getAttribLocation(program, "aPosition");
+		gl.enableVertexAttribArray(attributes.position);
+		attributes.location = gl.getAttribLocation(program, "aNormal");
+		gl.enableVertexAttribArray(attributes.location);
+		attributes.textureCoords = gl.getAttribLocation(program, "aTextureCoord");
+		gl.enableVertexAttribArray(attributes.textureCoords);
+		uniforms.modelviewMatrix = gl.getUniformLocation(program, "uModelviewMatrix");
+		uniforms.projectionMatrix = gl.getUniformLocation(program, "uProjectionMatrix");
+		uniforms.normalMatrix = gl.getUniformLocation(program, "uNormalMatrix");
+		uniforms.sampler = gl.getUniformLocation(program, "uSampler");
+		uniforms.color = gl.getUniformLocation(program, "uColor");
 	}
 	
 	this.updateProjection = function(width, height) {
 		var matrix = mat4.perspective(45, width / height, NEAR_CLIPPING, FAR_CLIPPING);
-		gl.uniformMatrix4fv(projectionMatrixLocation, false, matrix);
+		gl.uniformMatrix4fv(uniforms.projectionMatrix, false, matrix);
 	};
 
 	var matrix = mat4.identity();
@@ -103,6 +89,11 @@ self.Renderer = function(gl, world) {
 			}
 		},
 
+		/**
+		 * Uploads the buffer data to the video memory
+		 * 
+		 * @return WebGLBuffer
+		 */
 		createBuffer: function(type, buffer) {
 			var glBuffer = gl.createBuffer();
 			gl.bindBuffer(type, glBuffer);
@@ -110,24 +101,77 @@ self.Renderer = function(gl, world) {
 			return glBuffer;
 		},
 		
+		/**
+		 * Draws the elements specified by the options parameter
+		 * 
+		 * vertices, normals and textureCoords should be created using
+		 * createBuffer(gl.ARRAY_BUFFER, Float32Array).
+		 * 
+		 * triangles should be created using createBuffer(gl.ARRAY_ELEMENT_BUFFER, Uint16Array).
+		 * 
+		 * options: {
+		 *   vertices: WebGLBuffer
+		 *   normals: WebGLBuffer
+		 *   textureCoords: WebGLBuffer
+		 *   surfaces: [
+		 *     {
+		 *       material: Material,
+		 *       vertexCount: int,
+		 *       triangles: WebGLBuffer 
+		 *     }, ...
+		 *   ]
+		 * }
+		 */
 		drawElements: function(options) {
 			applyMatrix();
 			
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.vertices);
-			gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribPointer(attributes.position, 3, gl.FLOAT, false, 0, 0);
 			
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.normals);
-			gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribPointer(attributes.normal, 3, gl.FLOAT, false, 0, 0);
 			
 			// Bind the texture coords
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.textureCoords);
-			gl.vertexAttribPointer(textureCoordLocation, 2, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribPointer(attributes.textureCoords, 2, gl.FLOAT, false, 0, 0);
 			
 			// Draw the triangles.
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, options.vertexIndices);
-			gl.drawElements(gl.TRIANGLES, options.vertexCount, gl.UNSIGNED_SHORT, 0);
+			for (var i = 0; i < options.surfaces.length; i++) {
+				var surface = options.surfaces[i];
+				surface.material.apply(renderFunctions);
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, surface.triangles);
+				gl.drawElements(gl.TRIANGLES, surface.vertexCount, gl.UNSIGNED_SHORT, 0);
+			}
 			
 			triangleCount += options.vertexCount / 3;
+		},
+		
+		loadTexture: function(url) {
+			var texture = gl.createTexture();
+			var image = new Image();
+			image.onload = handleTextureLoaded();
+			image.src = url;
+
+			function handleTextureLoaded() {
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+				gl.generateMipmap(gl.TEXTURE_2D);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+			}
+			
+			return texture;
+		},
+		
+		bindTexture: function(texture) {
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.uniform1i(uniforms.sampler, 0);
+		},
+		
+		setColor: function(color) {
+			gl.uniform4f(uniforms.color, color[0], color[1], color[2], color[3]);
 		}
 	};
 	
@@ -158,10 +202,7 @@ self.Renderer = function(gl, world) {
 	this.render = function() {
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
-		// Texture
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
-		gl.uniform1i(samplerLocation, 0);
+		materials.white.apply(renderFunctions);
 		
 		matrix = mat4.identity();
 		// Order is important: first x-axis, then y-axis
@@ -176,11 +217,11 @@ self.Renderer = function(gl, world) {
 	};
 	
 	function applyMatrix() {
-		gl.uniformMatrix4fv(modelviewMatrixLocation, false, matrix);
+		gl.uniformMatrix4fv(uniforms.modelviewMatrix, false, matrix);
 		
 		// Normal matrix
 		var normalMatrix = mat4.inverse(matrix, mat4.create());
 		mat4.transpose(normalMatrix);
-		gl.uniformMatrix4fv(normalMatrixLocation, false, normalMatrix);
+		gl.uniformMatrix4fv(uniforms.normalMatrix, false, normalMatrix);
 	}
 };

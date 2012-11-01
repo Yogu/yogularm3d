@@ -1,0 +1,17 @@
+{
+	"block": {
+		"texture": "texture.png"
+	},
+	
+	"white": {
+		"color": [1,1,1,1]
+	},
+	
+	"black": {
+		"color": [0,0,0,1]
+	},
+		
+	"yellow": {
+		"color": [1,1,0,1]
+	}
+}

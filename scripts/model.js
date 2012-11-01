@@ -3,7 +3,7 @@
 self.Model = function(url) { 
 	var self = this;
 	var vertexCount;
-	var mesh = null;
+	var mesh;
 
 	this.isReady = function() { return mesh != null; };
 	
@@ -25,23 +25,40 @@ self.Model = function(url) {
 		var normals = [];
 		var textureCoords = [];
 		
-		// List of the used triples' indices - gets exported to OpenGL als ELEMENT_ARRAY
-		var indices = [];
+		// Map surfaceName => triangle array (list of vertex indices)
+		var surfaces = {};
+		
+		var currentMaterialName = 'white';
 		
 		var polygonCount = 0;
+		var triangleCount = 0;
+		var surfaceCount = 0;
 		
 		$.ajax({
 			url: url,
 			success: function(data)  {
 				parseFile(data);
-				vertexCount = indices.length;
+				
+				// Convert the map into a list and assign the material objects
+				var surf = [];
+				for (name in surfaces) {
+					surf.push({
+						material: materials[name],
+						triangles: surfaces[name]
+					});
+				}
 
 				mesh = new Mesh({
-					vertices: utils.arrayToFloat32Array(vertices),
-					vertexIndices: utils.arrayToUint16Array(indices),
-					textureCoords: utils.arrayToFloat32Array(textureCoords),
-					normals: utils.arrayToFloat32Array(normals)
+					vertices: vertices,
+					textureCoords: textureCoords,
+					normals: normals,
+					surfaces: surf
 				});
+				
+				surfaceCount = surf.length;
+
+				console.log("Parsed model with " + vertices.length + " vertices, " + polygonCount +
+					" polygons, " + surfaceCount + " surfaces and " + triangleCount + " triangles");
 			},
 			error: function(error) {
 				throw error;
@@ -50,8 +67,6 @@ self.Model = function(url) {
 		
 		function parseFile(data) {
 			data.split("\n").forEach(parseLine);
-			console.log("Parsed model with " + vertices.length + " vertices, " + polygonCount +
-				" polygons and thus " + (indices.length / 3) + " triangles");
 		}
 		
 		function parseLine(line) {
@@ -89,9 +104,12 @@ self.Model = function(url) {
 						addVertex(parts[0]);
 						addVertex(parts[i]);
 						addVertex(parts[i+1]);
+						triangleCount++;
 					}
 					polygonCount++;
 					break;
+				case 'usemtl':
+					currentMaterialName = parts[0];
 				}
 			}
 		}
@@ -106,7 +124,9 @@ self.Model = function(url) {
 				index = addTriple(specifier);
 				indexedTriplets[specifier] = index;
 			}
-			indices.push(parseInt(index));
+			if (!(currentMaterialName in surfaces))
+				surfaces[currentMaterialName] = [];
+			surfaces[currentMaterialName].push(parseInt(index));
 			
 			// Adds a triple and returns the triple's index
 			function addTriple(specifier) {
