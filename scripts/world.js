@@ -27,13 +27,13 @@ self.World = function() {
 	};
 	
 	this.render = function(r) {
-		/*for (var name in chunks) {
+		for (var name in chunks) {
 			var chunk = chunks[name];
 			r.updateMatrix(function(matrix) {
 				matrix.translate(vec4.createFrom(Chunk.SIZE * chunk.x, Chunk.SIZE * chunk.y, Chunk.SIZE * chunk.z));
 				chunk.render(r);
 			});
-		}*/
+		}
 		
 		model.render(r);
 	};

@@ -14,7 +14,8 @@ self.Renderer = function(gl, world) {
 		modelviewMatrix: null,
 		normalMatrix: null,
 		color: null,
-		sampler: null
+		sampler: null,
+		textureEnabled: null
 	};
 	
 	var NEAR_CLIPPING = 0.1;
@@ -26,7 +27,7 @@ self.Renderer = function(gl, world) {
 	// Init configuration
 	function initOpenGL() {
 		// Clear to black, fully opaque
-		gl.clearColor(0.0, 0.0, 0.1, 1.0);
+		gl.clearColor(0.3, 0.3, 0.7, 1.0);
 		// Clear everything
 		gl.clearDepth(1.0);
 		
@@ -59,6 +60,7 @@ self.Renderer = function(gl, world) {
 		uniforms.normalMatrix = gl.getUniformLocation(program, "uNormalMatrix");
 		uniforms.sampler = gl.getUniformLocation(program, "uSampler");
 		uniforms.color = gl.getUniformLocation(program, "uColor");
+		uniforms.textureEnabled = gl.getUniformLocation(program, "uTextureEnabled");
 	}
 	
 	this.updateProjection = function(width, height) {
@@ -149,7 +151,7 @@ self.Renderer = function(gl, world) {
 		loadTexture: function(url) {
 			var texture = gl.createTexture();
 			var image = new Image();
-			image.onload = handleTextureLoaded();
+			image.onload = handleTextureLoaded;
 			image.src = url;
 
 			function handleTextureLoaded() {
@@ -165,9 +167,14 @@ self.Renderer = function(gl, world) {
 		},
 		
 		bindTexture: function(texture) {
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.uniform1i(uniforms.sampler, 0);
+			if (texture !== null) {
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.uniform1i(uniforms.sampler, 0);
+				gl.uniform1i(uniforms.textureEnabled, 1);
+			} else {
+				gl.uniform1i(uniforms.textureEnabled, 0);
+			}
 		},
 		
 		setColor: function(color) {

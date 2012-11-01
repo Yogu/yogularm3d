@@ -25,6 +25,8 @@ self.Mesh = function(buffers) {
 	var glNormalBuffer;
 	var glTextureCoordBuffer;
 	
+	var triangleCount = 0;
+	
 	// Create native Arrays, if neccessary
 	buffers.vertices = utils.ensureIsBuffer(buffers.vertices, Float32Array);
 	buffers.normals = utils.ensureIsBuffer(buffers.normals, Float32Array);
@@ -38,7 +40,7 @@ self.Mesh = function(buffers) {
 			var d = new Date().getTime();
 			buildBuffers(r);
 			buffersBuilt = true;
-			console.log("Built mesh with " + self.triangleCount+ " triangles in  " +
+			console.log("Built mesh with " + triangleCount+ " triangles in  " +
 					(new Date().getTime() - d) + " ms");
 		}
 
@@ -51,6 +53,7 @@ self.Mesh = function(buffers) {
 	};
 	
 	function buildBuffers(r) {
+		triangleCount = 0;
 		glVertexBuffer
 			= r.createBuffer(r.gl.ARRAY_BUFFER, utils.arrayToFloat32Array(buffers.vertices));
 		glNormalBuffer = r.createBuffer(r.gl.ARRAY_BUFFER, buffers.normals);
@@ -64,6 +67,7 @@ self.Mesh = function(buffers) {
 				material: surface.material,
 				vertexCount: surface.triangles.length,
 				triangles: buffer});
+			triangleCount += surface.triangles.length;
 		}
 	}
 	

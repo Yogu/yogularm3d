@@ -112,9 +112,12 @@
 			
 			return new Mesh({
 				vertices: vertexBuffer,
-				vertexIndices: vertexIndexBuffer,
 				textureCoords: textureCoordBuffer,
-				normals: normalBuffer
+				normals: normalBuffer,
+				surfaces: [{
+					material: materials.block,
+					triangles: vertexIndexBuffer
+				}]
 			});
 		}
 		

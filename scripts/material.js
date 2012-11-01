@@ -20,6 +20,8 @@ self.materials = new (function() {
 	function applyMaterial(r, material) {
 		if ('texture' in material)
 			bindTexture(r, material.texture);
+		else
+			r.bindTexture(null);
 		if ('color' in material)
 			r.setColor(material.color);
 	}
@@ -29,14 +31,17 @@ self.materials = new (function() {
 	}
 	
 	function loadTextureIfNotPresent(r, fileName) {
-		if ('fileName' in textures)
+		if (fileName in textures)
 			return textures[fileName];
-		else
-			return loadTexture(r, fileName);
+		else {
+			var texture = loadTexture(r, fileName);
+			textures[fileName] = texture;
+			return texture;
+		}
 	}
 	
 	function loadTexture(r, fileName) {
 		var url = 'images/' + fileName;
-		return r.loadTexture(r, url);
+		return r.loadTexture(url);
 	}
 })();
