@@ -3,9 +3,9 @@
 self.webgl = new (function() {
 	var self = this;
 	
-	/*window.onerror = function(msg, url, line) {
+	window.onerror = function(msg, url, line) {
 		alert('Error: ' + msg + (url ? (' (in ' +url + ':' + line+')') : ''));
-	};*/
+	};
 	
 	var GET_A_WEBGL_BROWSER = ''
 			+ 'This page requires a browser that supports WebGL. http://get.webgl.org - upgrade your browser';
