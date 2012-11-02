@@ -9,6 +9,7 @@ self.World = function() {
 	var self = this;
 	var PLAYER_SPEED = 5;
 	var PLAYER_JUMP_SPEED = 5.5;
+	var PLAYER_ROTATE_SPEED = 20;
 	var CAMERA_HORIZONTAL_SPEED = 5;
 	var CAMERA_VERTICAL_SPEED = 5;
 	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
@@ -120,13 +121,19 @@ self.World = function() {
 				0,
 				(z * zSpeed + x * xSpeed) * elapsed * PLAYER_SPEED);
 
-			var angle = geo.angleBetween2DVectors(moveVector[0], moveVector[2], 1, 0) - Math.PI * 0.5;
+			var targetAngle = geo.angleBetween2DVectors(moveVector[0], moveVector[2], 1, 0) - Math.PI * 0.5;
 			
 			// add the delta to the position and try the move
 			vec3.add(self.player.position, moveVector, moveVector);
 			self.player.tryMoveTo(moveVector);
 			
-			self.player.rotation[1] = angle;
+			// rotate the player
+			var angleDiff = (self.player.rotation[1] - targetAngle) % (Math.PI * 2);
+			if (angleDiff > Math.PI)
+				angleDiff -= (2 * Math.PI);
+			if (angleDiff < -Math.PI)
+				angleDiff += 2 * Math.PI; 
+			self.player.rotation[1] -= angleDiff * elapsed * PLAYER_ROTATE_SPEED;
 		}
 		
 		if (input.isJump() && self.player.touchesGround())
@@ -144,6 +151,8 @@ self.World = function() {
 		// Calculate the correct direction to rotate
 		if (diff > Math.PI)
 			diff -= (2 * Math.PI);
+		if (diff < -Math.PI)
+			diff += 2 * Math.PI;
 		self.camera.rotation[1] -= diff * Math.PI * elapsed;
 		
 		// Move behind the player
