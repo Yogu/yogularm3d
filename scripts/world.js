@@ -19,7 +19,7 @@ self.World = function() {
 	this.player.rotation = vec3.createFrom(0, 0, 0);
 	this.player.boundingBox.minVector = vec3.createFrom(-0.45, 0, -0.45);
 	this.player.boundingBox.maxVector = vec3.createFrom(0.45, 0.9, 0.45);
-	this.player.model = new Model('models/yogu.obj');
+	this.player.model = resources.models.yogu;
 	$(this.player.model).on('load', function() {
 		self.player.model.center();
 		self.player.model.corrections.rotation = vec3.createFrom(0,Math.PI / 2,0);
