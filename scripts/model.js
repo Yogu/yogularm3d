@@ -3,9 +3,11 @@
 self.Model = function(url) { 
 	var self = this;
 	var vertexCount;
-	var mesh;
+	var mesh = null;
 
 	this.isReady = function() { return mesh != null; };
+	this.minVector = [null,null,null];
+	this.maxVector = [null,null,null];
 	
 	loadObjAsync(url);
 	
@@ -59,6 +61,7 @@ self.Model = function(url) {
 
 				console.log("Parsed model with " + vertices.length + " vertices, " + polygonCount +
 					" polygons, " + surfaceCount + " surfaces and " + triangleCount + " triangles");
+				$(self).trigger('load');
 			},
 			error: function(error) {
 				throw error;
@@ -75,11 +78,18 @@ self.Model = function(url) {
 				var key = parts.shift(); // remove and return first element
 				switch (key) {
 				case 'v':
-					if (parts.length == 3)
-						indexedVertices.push(parts.map(function(v) { return parseFloat(v);}));
-					else
+					if (parts.length != 3)
 						throw "Corrupt OBJ file: vertex with " + parts.length + " components; exactly three required. " +
 						"full line: " + line;
+					
+					var vertex = parts.map(function(v) { return parseFloat(v);});
+					indexedVertices.push(vertex);
+					for (var i = 0; i < 3; i++) {
+						if (self.minVector[i] === null || vertex[i] < self.minVector[i])
+							self.minVector[i] = vertex[i];
+						if (self.maxVector[i] === null || vertex[i] > self.maxVector[i])
+							self.maxVector[i] = vertex[i];
+					}
 					break;
 				case 'vn':
 					if (parts.length == 3)
@@ -147,7 +157,37 @@ self.Model = function(url) {
 	}
 	
 	this.render = function(r) {
-		if (mesh != null)
-			mesh.render(r);
+		if (mesh != null) {
+			if (this.corrections) {
+				var corrections = this.corrections;
+				r.updateMatrix(function(matrix) {
+					matrix.scale(corrections.scale);
+					matrix.rotateX(corrections.rotation[0]);
+					matrix.rotateY(corrections.rotation[1]);
+					matrix.rotateZ(corrections.rotation[2]);
+					matrix.translate(corrections.offset);
+					
+					mesh.render(r);
+				});
+			} else
+				mesh.render(r);
+		}
+	};
+	
+	this.center = function(r) {
+		if (mesh == null)
+			throw new Error("Model.center() called before model was completely loaded");
+		
+		var offset = vec3.add(self.minVector, self.maxVector, vec3.create());
+		vec3.scale(offset, -0.5);
+		
+		if (!self.corrections) {
+			self.corrections = {
+				rotation: vec3.create(),
+				scale: vec3.createFrom(1,1,1),
+				offset: offset,
+			};
+		} else
+			self.corrections.offset = offset;
 	};
 };

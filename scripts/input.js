@@ -10,6 +10,7 @@ self.Input = function() {
 		PAGE_UP: 33,
 		PAGE_DOWN: 34,
 		A: 65,
+		CTRL: 17
 	}
 	
 	document.addEventListener('keydown', function(event) {
@@ -31,4 +32,5 @@ self.Input = function() {
 	this.isPageUp = function() { return self.pressedKeys[keys.PAGE_UP];};
 	this.isPageDown = function() { return self.pressedKeys[keys.PAGE_DOWN];};
 	this.isJump = function() { return self.pressedKeys[keys.A];};
+	this.isResetCamera = function() { return self.pressedKeys[keys.CTRL];};
 };

@@ -1,10 +1,9 @@
-"use strict";
-
 (function() {
+	"use strict";
+	
 	var constants = {
 		gravity: 9.81
 	};
-	self.constants = constants;
 	
 	/**
 	 * Defines a box
@@ -113,10 +112,15 @@
 	}
 	test();*/
 	
+	self.Body = null;
 	/**
+	 * @constructor Creates a new physical body
+	 * 
 	 * @param {World} world The world that will contain this body
 	 */
-	self.Body = function(world) {
+	Body = function(world) {
+		this.world = world;
+		
 		// Bottom-left-back coordinates
 		this.position = vec3.create();
 		this.rotation = vec3.create();
@@ -125,65 +129,66 @@
 			vec3.createFrom(0.5, 0.5, 0.5));
 		this.momentum = vec3.create();
 		
-		var self = this;
-		var currentForce = vec3.create();
-		
-		this.getImpact = function(target) {
+		this.currentForce = vec3.create();
+	};
+	
+	Body.prototype = {
+		getImpact: function(target) {
 			var impact = this.position;
 			for (var axis = 0; axis < 3; axis++) {
-				if (target[axis] != self.position[axis]) {
-					impact = self.boundingBox.getImpactOnMove(
-						impact, axis, target[axis] - self.position[axis],
-						world);
+				if (target[axis] !== this.position[axis]) {
+					impact = this.boundingBox.getImpactOnMove(
+						impact, axis, target[axis] - this.position[axis],
+						this.world);
 				}
 			}
 			return impact;
-		};
-		
-		this.tryMoveTo = function(target) {
+		},
+			
+		tryMoveTo: function(target) {
 			this.position = this.getImpact(target);
-		};
-		
-		this.touchesGround = function() {
+		},
+			
+		touchesGround: function() {
 			var epsilon = 0.001; // min distance to ground
-			var target = vec3.createFrom(self.position[0],
-				self.position[1] - epsilon, self.position[2]);
-			var impact = self.getImpact(target);
+			var target = vec3.createFrom(this.position[0],
+				this.position[1] - epsilon, this.position[2]);
+			var impact = this.getImpact(target);
 			// if body collides on the way down, it has contact.
-			return Math.abs(impact[1] - self.position[1]) < epsilon/2;
-		};
+			return Math.abs(impact[1] - this.position[1]) < epsilon/2;
+		},
 		
-		this.update = function(elapsed) {
-			applyGravity();
-			applyForces(elapsed);
-			applyMomentum(elapsed);
-		};
+		update: function(elapsed) {
+			this.applyGravity();
+			this.applyForces(elapsed);
+			this.applyMomentum(elapsed);
+		},
+			
+		applyForce: function(forceVector) {
+			vec3.add(this.currentForce, forceVector);
+		},
+			
+		applyGravity: function() {
+			this.currentForce[1] -= constants.gravity;
+		},
+			
+		applyForces: function(elapsed) {
+			vec3.scale(this.currentForce, elapsed);
+			vec3.add(this.momentum, this.currentForce);
+			this.currentForce = vec3.create();
+		},
 		
-		this.applyForce = function(forceVector) {
-			vec3.add(currentForce, forceVector);
-		};
-		
-		function applyGravity() {
-			currentForce[1] -= constants.gravity;
-		}
-		
-		function applyForces(elapsed) {
-			vec3.scale(currentForce, elapsed);
-			vec3.add(self.momentum, currentForce);
-			currentForce = vec3.create();
-		}
-		
-		function applyMomentum(elapsed) {
+		applyMomentum: function(elapsed) {
 			for (var axis = 0; axis < 3; axis++) {
-				if (self.momentum[axis] != 0) {
-					var delta = self.momentum[axis] * elapsed / self.mass;
-					var impact = self.boundingBox.getImpactOnMove(
-						self.position, axis, delta, world);
+				if (this.momentum[axis] != 0) {
+					var delta = this.momentum[axis] * elapsed / this.mass;
+					var impact = this.boundingBox.getImpactOnMove(
+							this.position, axis, delta, world);
 					// Zero the momentum on collision
-					if (Math.abs(self.position[axis] + delta - impact[axis])
+					if (Math.abs(this.position[axis] + delta - impact[axis])
 						> 0.01)
-						self.momentum[axis] = 0;
-					self.position = impact;
+						this.momentum[axis] = 0;
+					this.position = impact;
 				}
 			}
 		}

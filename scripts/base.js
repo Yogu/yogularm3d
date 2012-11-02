@@ -15,6 +15,10 @@ self.geo = new (function() {
 				(zFar + zNear) / (zNear - zFar),
 				2 * zFar * zNear / (zNear - zFar), 0, 0, -1, 0 ];
 	};
+	
+	this.angleBetween2DVectors = function(x1, y1, x2, y2) {
+		return Math.atan2(y2, x2) - Math.atan2(y1,x1);
+	};
 })();
 
 self.utils = {

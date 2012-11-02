@@ -24,7 +24,7 @@
 				var b = y + self.y * SIZE;
 				var c = z + self.z * SIZE;
 				
-				if (b == 0 || Math.cos((a + b) * (b + a) * (c - a)) < -0.9)
+				if (b == 0 || Math.cos((a + b) * (b + a) * (c - a)) < -0.96)
 						setID(x,y,z, 1); 
 			});
 		
@@ -124,8 +124,11 @@
 		this.render = function(r) {
 			if (changed || !mesh)
 				mesh = createMesh();
-			
-			mesh.render(r);
+
+			r.updateMatrix(function(matrix) {
+				matrix.translate(vec4.createFrom(SIZE * self.x, SIZE * self.y, SIZE * self.z));
+				mesh.render(r);
+			});
 		};
 		
 		// Cube Data
