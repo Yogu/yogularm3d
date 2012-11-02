@@ -115,7 +115,7 @@
 				textureCoords: textureCoordBuffer,
 				normals: normalBuffer,
 				surfaces: [{
-					material: materials.block,
+					material: resources.materials.block,
 					triangles: vertexIndexBuffer
 				}]
 			});

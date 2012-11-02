@@ -143,9 +143,9 @@ self.Renderer = function(gl, world) {
 				surface.material.apply(renderFunctions);
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, surface.triangles);
 				gl.drawElements(gl.TRIANGLES, surface.vertexCount, gl.UNSIGNED_SHORT, 0);
+
+				triangleCount += surface.vertexCount / 3;
 			}
-			
-			triangleCount += options.vertexCount / 3;
 		},
 		
 		loadTexture: function(url) {
@@ -209,7 +209,7 @@ self.Renderer = function(gl, world) {
 	this.render = function() {
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
-		materials.white.apply(renderFunctions);
+		resources.materials.white.apply(renderFunctions);
 		
 		matrix = mat4.identity();
 		triangleCount = 0;

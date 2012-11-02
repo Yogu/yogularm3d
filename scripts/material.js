@@ -1,10 +1,10 @@
 "use strict";
 
-self.materials = new (function() {
+self.Materials = function(url) {
 	var textures = [];
 	var self = this;
 	
-	$.getJSON('models/material.json', function(data) {
+	$.getJSON(url, function(data) {
 		for (name in data) {
 			var material = data[name];
 			material.apply = (function(material) {
@@ -14,6 +14,7 @@ self.materials = new (function() {
 			})(material);
 			self[name] = material;
 		}
+		console.log('Material file loaded');
 		$(self).trigger('load');
 	});
 	
@@ -44,4 +45,4 @@ self.materials = new (function() {
 		var url = 'images/' + fileName;
 		return r.loadTexture(url);
 	}
-})();
+};

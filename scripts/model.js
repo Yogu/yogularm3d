@@ -45,7 +45,7 @@ self.Model = function(url) {
 				var surf = [];
 				for (name in surfaces) {
 					surf.push({
-						material: materials[name],
+						material: resources.materials[name],
 						triangles: surfaces[name]
 					});
 				}
@@ -119,7 +119,9 @@ self.Model = function(url) {
 					polygonCount++;
 					break;
 				case 'usemtl':
-					currentMaterialName = parts[0];
+					currentMaterialName = parts[0].trim();
+					if (resources.materials[currentMaterialName] == null)
+						throw Error("Material referenced by model file not found: " + currentMaterialName);
 				}
 			}
 		}

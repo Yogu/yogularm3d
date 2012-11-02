@@ -22,7 +22,10 @@
 			input = new Input();
 			initViewport();
 			console.log('Waiting for resources to load...');
-			$(materials).on('load', startLoop);
+			$(resources).on('progress', function() {
+				$('#status').text('Loading: ' + (resources.progress * 100).toFixed(0) + '%');
+			});
+			$(resources).on('load', startLoop);
 		} else
 			alert('Failed to initialize WebGL');
 		
