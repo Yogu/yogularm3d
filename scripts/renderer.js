@@ -70,6 +70,7 @@ self.Renderer = function(gl, world) {
 
 	var matrix = mat4.identity();
 	var matrices = [];
+	var normalMatrixBase = matrix;
 	
 	function pushMatrix() {
 		matrices.push(mat4.create(matrix));
@@ -186,22 +187,27 @@ self.Renderer = function(gl, world) {
 	var matrixFunctions = {
 		translate: function(vector) {
 			mat4.translate(matrix, vector);
+			mat4.translate(normalMatrixBase, vector);
 		},
 
 		rotateX: function(angle) {
 			mat4.rotateX(matrix, angle);
+			mat4.rotateX(normalMatrixBase, angle);
 		},
 
 		rotateY: function(angle) {
 			mat4.rotateY(matrix, angle);
+			mat4.rotateY(normalMatrixBase, angle);
 		},
 
 		rotateZ: function(angle) {
 			mat4.rotateZ(matrix, angle);
+			mat4.rotateZ(normalMatrixBase, angle);
 		},
 		
 		scale: function(vector) {
 			mat4.scale(matrix, vector);
+			mat4.scale(normalMatrixBase, vector);
 		}
 	};
 	
@@ -212,7 +218,11 @@ self.Renderer = function(gl, world) {
 		
 		resources.materials.white.apply(renderFunctions);
 		
+		// Normal matrix base should not be affected by camera
 		matrix = mat4.identity();
+		world.applyCamera(matrixFunctions);
+		normalMatrixBase = mat4.identity();
+		
 		triangleCount = 0;
 		world.render(renderFunctions);
 		self.triangleCount = triangleCount;
@@ -222,7 +232,7 @@ self.Renderer = function(gl, world) {
 		gl.uniformMatrix4fv(uniforms.modelviewMatrix, false, matrix);
 		
 		// Normal matrix
-		var normalMatrix = mat4.inverse(matrix, mat4.create());
+		var normalMatrix = mat4.inverse(normalMatrixBase, mat4.create());
 		mat4.transpose(normalMatrix);
 		gl.uniformMatrix4fv(uniforms.normalMatrix, false, normalMatrix);
 	}

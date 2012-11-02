@@ -44,25 +44,21 @@ self.World = function() {
 	};
 	
 	this.render = function(r) {
-		r.updateMatrix(function(matrix) {
-			applyCamera(matrix);
-			
-			for (var name in chunks) {
-				var chunk = chunks[name];
-				chunk.render(r);
-			}
-			
-			self.player.render(r);
-		});
+		for (var name in chunks) {
+			var chunk = chunks[name];
+			chunk.render(r);
+		}
+		
+		self.player.render(r);
 	};
 	
-	function applyCamera(matrix) {
+	this.applyCamera = function(matrix) {
 		// order is important!
 		matrix.rotateX(self.camera.rotation[0]);
 		matrix.rotateZ(self.camera.rotation[2]);
 		matrix.rotateY(self.camera.rotation[1]);
 		matrix.translate(vec3.negate(self.camera.position, vec3.create()));
-	} 
+	}
 	
 	function addChunk(x,y,z) {
 		chunks[x+','+y+','+z] = new Chunk(x, y, z);
