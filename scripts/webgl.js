@@ -3,23 +3,34 @@
 self.webgl = new (function() {
 	var self = this;
 	
-	/*window.onerror = function(msg, url, line) {
-		alert('Error: ' + msg + (url ? (' (in ' +url + ':' + line+')') : ''));
-	};*/
+	var GET_A_WEBGL_BROWSER = 'Sorry, your browser is not supported yet.<br /><br />' +
+		'This game is based on WebGL, a technology available in recent browsers. ' +
+		'<a href="http://get.webgl.org">Click here to upgrade your browser.</a>';
+	var OTHER_PROBLEM = "Sorry, we're having trouble starting up the game.<br /><br />" +
+		"The problem can probably be solved by upgrading your video card's driver or switching to " +
+		"a different browser. "+
+		"<a href=\"http://get.webgl.org/troubleshooting/\">Click here for more information.</a>";
 	
-	var GET_A_WEBGL_BROWSER = ''
-			+ 'This page requires a browser that supports WebGL. http://get.webgl.org - upgrade your browser';
-	var OTHER_PROBLEM = ''
-			+ "It doesn't appear your computer can support WebGL. http://get.webgl.org/troubleshooting/ -  more information";
+	function showError(error) {
+		$('#loading-status').html(error);
+		$('#progress').hide();
+		$('body').addClass('error');
+		window.onerror = null;
+	}
+	
+	window.onerror = function(message) {
+		showError('Oops, the game failed to start.<br /><br />Details: ' + message);
+	};
 	
 	this.init = function(canvas, opt_attribs) {
 		if (!window.WebGLRenderingContext) {
-			alert(GET_A_WEBGL_BROWSER);
-			return null;
+			showError(GET_A_WEBGL_BROWSER);
+			throw new Error('WebGL not supported');
 		}
 		var context = create3DContext(canvas, opt_attribs);
 		if (!context) {
-			alert(OTHER_PROBLEM);
+			showError(GET_A_WEBGL_BROWSER);
+			throw new Error('Failed to init 3d context');
 		}
 		return context;
 	};
@@ -66,8 +77,7 @@ self.webgl = new (function() {
 		var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
 		if (!compiled) {
 			var error = gl.getShaderInfoLog(shader);
-			debug.error("*** Error compiling shader '" + shader + "':" + error);
-			gl.deleteShader(shader);
+			throw new Error("*** Error compiling shader '" + shader + "':" + error);
 			return null;
 		}
 		return shader;
@@ -90,9 +100,7 @@ self.webgl = new (function() {
 		var linked = gl.getProgramParameter(program, gl.LINK_STATUS);
 		if (!linked) {
 			var error = gl.getProgramInfoLog(program);
-			debug.error("Error in program linking:" + error);
-			gl.deleteProgram(program);
-			return null;
+			throw new Error("Error in program linking:" + error);
 		}
 		return program;
 	};
@@ -102,7 +110,7 @@ self.webgl = new (function() {
 		var shaderType;
 		var shaderScript = document.getElementById(scriptId);
 		if (!shaderScript) {
-			throw ("*** Error: unknown script element" + scriptId);
+			throw new Error("*** Error: unknown script element" + scriptId);
 		}
 		shaderSource = shaderScript.text;
 		if (!opt_shaderType) {
@@ -112,7 +120,7 @@ self.webgl = new (function() {
 				shaderType = gl.FRAGMENT_SHADER;
 			} else if (shaderType != gl.VERTEX_SHADER
 					&& shaderType != gl.FRAGMENT_SHADER) {
-				throw ("*** Error: unknown shader type");
+				throw new Error("*** Error: unknown shader type");
 				return null;
 			}
 		}

@@ -15,19 +15,16 @@
 		var elapsedSum = 0;
 		var elapsedCount = 0;
 		
-		if (gl) {
-			console.log('Initializing game...');
-			world = new World();
-			renderer = new Renderer(gl, world);
-			input = new Input();
-			initViewport();
-			console.log('Waiting for resources to load...');
-			$(resources).on('progress', function() {
-				$('#status').text('Loading: ' + (resources.progress * 100).toFixed(0) + '%');
-			});
-			$(resources).on('load', startLoop);
-		} else
-			alert('Failed to initialize WebGL');
+		console.log('Initializing game...');
+		world = new World();
+		renderer = new Renderer(gl, world);
+		input = new Input();
+		initViewport();
+		console.log('Waiting for resources to load...');
+		$(resources).on('progress', function() {
+			$('#progress').text((resources.progress * 100).toFixed(0) + '%');
+		});
+		$(resources).on('load', startLoop);
 		
 		window.world = world;
 		
@@ -44,6 +41,8 @@
 		
 		function startLoop() {
 			console.log('Render loop started');
+			$('#splash').hide();
+			$('#status').show();
 			var last = new Date().getTime();
 			function iteration() {
 				var elapsed = (new Date().getTime() - last) / 1000;

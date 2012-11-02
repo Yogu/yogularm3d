@@ -4,6 +4,8 @@ self.Materials = function(url) {
 	var textures = [];
 	var self = this;
 	
+	var texturePath = 'images/';
+	
 	$.getJSON(url, function(data) {
 		for (name in data) {
 			var material = data[name];
@@ -13,6 +15,9 @@ self.Materials = function(url) {
 				};
 			})(material);
 			self[name] = material;
+
+			if ('texture' in material)
+				preloadTexture(material.texture);
 		}
 		console.log('Material file loaded');
 		$(self).trigger('load');
@@ -42,7 +47,18 @@ self.Materials = function(url) {
 	}
 	
 	function loadTexture(r, fileName) {
-		var url = 'images/' + fileName;
-		return r.loadTexture(url);
+		var url = texturePath + fileName;
+		return resources.registerResource(r.loadTexture(url));
+	}
+	
+	function preloadTexture(fileName) {
+		var url = texturePath + fileName;
+		var image = new Image();
+		var notifier = { };
+		image.onload = function() {
+			$(notifier).triggerHandler('load');
+		};
+		image.src = url;
+		resources.registerResource(notifier);
 	}
 };
