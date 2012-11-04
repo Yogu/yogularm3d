@@ -10,8 +10,9 @@ self.World = function() {
 	var PLAYER_SPEED = 5;
 	var PLAYER_JUMP_SPEED = 5.5;
 	var PLAYER_ROTATE_SPEED = 20;
-	var CAMERA_HORIZONTAL_SPEED = 5;
-	var CAMERA_VERTICAL_SPEED = 5;
+	var CAMERA_HORIZONTAL_SPEED = 4;
+	var CAMERA_VERTICAL_SPEED = 4;
+	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
 	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
 	var PLAYER_ACCELERATION = 40;
@@ -139,6 +140,17 @@ self.World = function() {
 		
 		if (input.isJump() && self.player.touchesGround())
 			self.player.momentum[1] += PLAYER_JUMP_SPEED * self.player.mass;
+		
+		if (input.isResetCamera()) {
+			var cameraTargetPosition = vec3.create(self.player.position);
+			cameraTargetPosition[0] += Math.sin(self.player.rotation[1]) * PLAYER_CAMERA_HORIZONTAL_DISTANCE;
+			cameraTargetPosition[1] += PLAYER_CAMERA_VERTICAL_DISTANCE;
+			cameraTargetPosition[2] += Math.cos(self.player.rotation[1]) * PLAYER_CAMERA_HORIZONTAL_DISTANCE;
+			var diff = vec3.subtract(cameraTargetPosition, self.camera.position);
+			vec3.scale(diff, CAMERA_HORIZONTAL_SPEED * elapsed);
+			vec3.add(diff, self.camera.position);
+			self.camera.tryMoveTo(diff);
+		}
 	}
 	
 	function updateCamera(elapsed, input) {
@@ -154,11 +166,11 @@ self.World = function() {
 			diff -= (2 * Math.PI);
 		if (diff < -Math.PI)
 			diff += 2 * Math.PI;
-		self.camera.rotation[1] -= diff * Math.PI * elapsed;
+		self.camera.rotation[1] -= diff * elapsed * CAMERA_ROTATE_SPEED;
 		
 		// Move behind the player
 		var moveSpeed = elapsed * CAMERA_HORIZONTAL_SPEED;
-		// the camere is best located 4 meters behind the player
+		// the camera is best located 4 meters behind the player
 		vec3.scale(direction, PLAYER_CAMERA_HORIZONTAL_DISTANCE);
 		var cameraPositionTarget = vec3.subtract(self.player.position, direction, cameraToPlayer);
 		var delta = vec3.subtract(cameraPositionTarget, self.camera.position, vec3.create());
