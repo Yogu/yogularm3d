@@ -14,6 +14,8 @@ self.World = function() {
 	var CAMERA_VERTICAL_SPEED = 5;
 	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
+	var PLAYER_ACCELERATION = 40;
+	var PLAYER_AIR_ACCELERATION = 20;
 	
 	this.player = new Entity(this);
 	this.player.position = vec3.createFrom(10, 3, 10),
@@ -95,8 +97,8 @@ self.World = function() {
 	}
 	this.getIDAt = getIDAt;
 	
-	for (var x = 0; x < 4; x++) {
-		for (var z = 0; z < 4; z++) {
+	for (var x = 0; x < 2; x++) {
+		for (var z = 0; z < 2; z++) {
 			addChunk(x, 0, z);
 		}
 	}
@@ -106,24 +108,19 @@ self.World = function() {
 		var zSpeed = input.isDown() ? -1 : input.isUp() ? 1 : 0;
 		var xSpeed = input.isLeft() ? -1 : input.isRight() ? 1 : 0;
 		var rot = -self.camera.rotation[1];
+		var speedX = 0;
+		var speedZ = 0;
 		if (xSpeed != 0 || zSpeed != 0) {
 			var cameraToPlayer = vec3.subtract(self.player.position, self.camera.position, vec3.create());
 			vec3.normalize(cameraToPlayer);
 			var x = cameraToPlayer[0];
 			var z = cameraToPlayer[2];
 			
-			var moveVector = vec3.createFrom(
-				(x * zSpeed - z * xSpeed) * elapsed * PLAYER_SPEED,
-				0,
-				(z * zSpeed + x * xSpeed) * elapsed * PLAYER_SPEED);
-
-			var targetAngle = geo.angleBetween2DVectors(moveVector[0], moveVector[2], 1, 0) - Math.PI * 0.5;
-			
-			// add the delta to the position and try the move
-			vec3.add(self.player.position, moveVector, moveVector);
-			self.player.tryMoveTo(moveVector);
+			speedX = (x * zSpeed - z * xSpeed) * PLAYER_SPEED;
+			speedZ = (z * zSpeed + x * xSpeed) * PLAYER_SPEED;
 			
 			// rotate the player
+			var targetAngle = geo.angleBetween2DVectors(speedX, speedZ, 1, 0) - Math.PI * 0.5;
 			var angleDiff = (self.player.rotation[1] - targetAngle) % (Math.PI * 2);
 			if (angleDiff > Math.PI)
 				angleDiff -= (2 * Math.PI);
@@ -131,6 +128,14 @@ self.World = function() {
 				angleDiff += 2 * Math.PI; 
 			self.player.rotation[1] -= angleDiff * elapsed * PLAYER_ROTATE_SPEED;
 		}
+
+		var force = self.player.mass;
+		if (self.player.touchesGround())
+			force *= PLAYER_ACCELERATION;
+		else
+			force *= PLAYER_AIR_ACCELERATION;
+		self.player.applyForceToSpeed(force, speedX, 0);
+		self.player.applyForceToSpeed(force, speedZ, 2);
 		
 		if (input.isJump() && self.player.touchesGround())
 			self.player.momentum[1] += PLAYER_JUMP_SPEED * self.player.mass;

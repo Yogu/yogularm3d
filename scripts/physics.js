@@ -130,6 +130,17 @@
 		this.momentum = vec3.create();
 		
 		this.currentForce = vec3.create();
+		
+		/**
+		 * [
+		 *   {
+		 *     force: float,
+		 *     speed: float,
+		 *     axis: int (0 = x, 1 = y, 2 = z)
+		 *   }
+		 * ]
+		 */
+		this.forcesToSpeed = [];
 	};
 	
 	Body.prototype = {
@@ -167,12 +178,38 @@
 		applyForce: function(forceVector) {
 			vec3.add(this.currentForce, forceVector);
 		},
+		
+		applyForceToSpeed: function(force, speed, axis) {
+			if (axis == null) {
+				this.applyForceToSpeed(force, speed[0], 0);
+				this.applyForceToSpeed(force, speed[1], 1);
+				this.applyForceToSpeed(force, speed[2], 2);
+			} else {
+				this.forcesToSpeed.push({
+					force: force,
+					speed: speed,
+					axis: axis
+				});
+			}
+		},
 			
 		applyGravity: function() {
 			this.currentForce[1] -= constants.gravity;
 		},
 			
 		applyForces: function(elapsed) {
+			for (var i = 0; i < this.forcesToSpeed.length; i++) {
+				var forceToSpeed = this.forcesToSpeed[i];
+				var speedDiff = forceToSpeed.speed - this.momentum[forceToSpeed.axis] / this.mass;
+				console.log(forceToSpeed.speed);
+				if (speedDiff != 0) {
+					var direction = speedDiff / Math.abs(speedDiff);
+					var force = Math.min(Math.abs(forceToSpeed.force), Math.abs(speedDiff * this.mass) / elapsed);
+					this.currentForce[forceToSpeed.axis] += direction * force;
+				}
+			}
+			this.forcesToSpeed = [];
+			
 			vec3.scale(this.currentForce, elapsed);
 			vec3.add(this.momentum, this.currentForce);
 			this.currentForce = vec3.create();
