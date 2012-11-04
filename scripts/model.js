@@ -43,7 +43,7 @@ self.Model = function(url) {
 				
 				// Convert the map into a list and assign the material objects
 				var surf = [];
-				for (name in surfaces) {
+				for (var name in surfaces) {
 					surf.push({
 						material: resources.materials[name],
 						triangles: surfaces[name]

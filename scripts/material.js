@@ -7,7 +7,7 @@ self.Materials = function(url) {
 	var texturePath = 'images/';
 	
 	$.getJSON(url, function(data) {
-		for (name in data) {
+		for (var name in data) {
 			var material = data[name];
 			material.apply = (function(material) {
 				return function(r) {

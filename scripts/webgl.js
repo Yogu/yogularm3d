@@ -11,17 +11,6 @@ self.webgl = new (function() {
 		"a different browser. "+
 		"<a href=\"http://get.webgl.org/troubleshooting/\">Click here for more information.</a>";
 	
-	function showError(error) {
-		$('#loading-status').html(error);
-		$('#progress').hide();
-		$('body').addClass('error');
-		window.onerror = null;
-	}
-	
-	window.onerror = function(message) {
-		showError('Oops, the game failed to start.<br /><br />Details: ' + message);
-	};
-	
 	this.init = function(canvas, opt_attribs) {
 		if (!window.WebGLRenderingContext) {
 			showError(GET_A_WEBGL_BROWSER);
