@@ -2,8 +2,9 @@
 
 (function() {
 	var SIZE = 16;
+	window.Chunk = null;
 	
-	self.Chunk = function(x, y, z) {
+	Chunk = function(x, y, z) {
 		var self = this;
 		this.x = x;
 		this.y = y;
@@ -29,6 +30,11 @@
 			});
 		
 		function id(x,y,z) {
+			if (x.length != null) {
+				z = x[2];
+				y = x[1];
+				x = x[0];
+			}
 			if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
 				throw "Illegal argument for id(x,y,z)";
 			

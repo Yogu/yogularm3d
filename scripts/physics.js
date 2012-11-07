@@ -201,7 +201,6 @@
 			for (var i = 0; i < this.forcesToSpeed.length; i++) {
 				var forceToSpeed = this.forcesToSpeed[i];
 				var speedDiff = forceToSpeed.speed - this.momentum[forceToSpeed.axis] / this.mass;
-				console.log(forceToSpeed.speed);
 				if (speedDiff != 0) {
 					var direction = speedDiff / Math.abs(speedDiff);
 					var force = Math.min(Math.abs(forceToSpeed.force), Math.abs(speedDiff * this.mass) / elapsed);

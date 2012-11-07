@@ -17,6 +17,7 @@ self.World = function() {
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
 	var PLAYER_ACCELERATION = 40;
 	var PLAYER_AIR_ACCELERATION = 20;
+	var RENDER_CHUNK_RADIUS = 2; // a cube of chunks with side length 2n+1 is rendered
 	
 	this.player = new Entity(this);
 	this.player.position = vec3.createFrom(10, 3, 10),
@@ -47,13 +48,32 @@ self.World = function() {
 	};
 	
 	this.render = function(r) {
-		for (var name in chunks) {
-			var chunk = chunks[name];
+		var renderChunks = getChunksAround(self.camera.position, RENDER_CHUNK_RADIUS);
+		for (var i = 0; i < renderChunks.length; i++) {
+			var chunk = renderChunks[i];
 			chunk.render(r);
 		}
 		
 		self.player.render(r);
 	};
+	
+	function getChunksAround(position, radius) {
+		// get the center
+		var c = getChunkCoordsOf(self.camera.position);
+		var chunks = [];
+		
+		// add all chunks that are at most *radius* chunks away from center
+		for (var x = c[0] - radius; x <= c[0] + radius; x++) {
+			for (var y = c[1] - radius; y <= c[1] + radius; y++) {
+				for (var z = c[2] - radius; z <= c[2] + radius; z++) {
+					var chunk = getChunk(x,y,z);
+					if (chunk != null)
+						chunks.push(chunk);
+				}
+			}
+		}
+		return chunks;
+	}
 	
 	this.applyCamera = function(matrix) {
 		// order is important!
@@ -61,45 +81,61 @@ self.World = function() {
 		matrix.rotateZ(self.camera.rotation[2]);
 		matrix.rotateY(self.camera.rotation[1]);
 		matrix.translate(vec3.negate(self.camera.position, vec3.create()));
-	}
+	};
 	
 	function addChunk(x,y,z) {
 		chunks[x+','+y+','+z] = new Chunk(x, y, z);
 	}
 	
 	function getChunk(x,y,z) {
+		if (x.length != null) {
+			z = x[2];
+			y = x[1];
+			x = x[0];
+		}
 		return chunks[x+','+y+','+z];
 	}
 	
 	function getChunkCoordsOf(vector) {
-		return {
-			x: Math.floor(vector[0] / Chunk.SIZE),
-			y: Math.floor(vector[1] / Chunk.SIZE),
-			z: Math.floor(vector[2] / Chunk.SIZE)
-		};
+		return [
+			coord(vector[0]),
+			coord(vector[1]),
+			coord(vector[2])
+		];
+		
+		function coord(v) {
+			return Math.floor(v / Chunk.SIZE);
+		}
 	}
 	
 	function getCoordsInChunkOf(vector) {
-		return {
-			x: Math.floor(vector[0]) % Chunk.SIZE,
-			y: Math.floor(vector[1]) % Chunk.SIZE,
-			z: Math.floor(vector[2]) % Chunk.SIZE
-		};
+		return [
+		    coord(vector[0]),
+		    coord(vector[1]),
+		    coord(vector[2])
+		];
+		
+		function coord(v) {
+			var tmp = Math.floor(v) % Chunk.SIZE;
+			if (tmp < 0)
+				tmp += Chunk.SIZE;
+			return tmp;
+		}
 	}
 	
 	function getIDAt(vector) {
 		var chunkCoords = getChunkCoordsOf(vector);
 		var coordsInChunk = getCoordsInChunkOf(vector);
-		var chunk = getChunk(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+		var chunk = getChunk(chunkCoords);
 		if (typeof(chunk) != 'undefined')
-			return chunk.getIDAt(coordsInChunk.x, coordsInChunk.y, coordsInChunk.z);
+			return chunk.getIDAt(coordsInChunk);
 		else
 			return 0;
 	}
 	this.getIDAt = getIDAt;
 	
-	for (var x = 0; x < 2; x++) {
-		for (var z = 0; z < 2; z++) {
+	for (var x = -10; x < 10; x++) {
+		for (var z = -10; z < 10; z++) {
 			addChunk(x, 0, z);
 		}
 	}
