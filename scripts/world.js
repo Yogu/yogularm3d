@@ -8,7 +8,7 @@
 self.World = function() {
 	var self = this;
 	var PLAYER_SPEED = 5;
-	var PLAYER_JUMP_SPEED = 5.5;
+	var PLAYER_JUMP_SPEED = 5.2;
 	var PLAYER_ROTATE_SPEED = 20;
 	var CAMERA_HORIZONTAL_SPEED = 4;
 	var CAMERA_VERTICAL_SPEED = 4;
@@ -17,7 +17,9 @@ self.World = function() {
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
 	var PLAYER_ACCELERATION = 40;
 	var PLAYER_AIR_ACCELERATION = 20;
-	var RENDER_CHUNK_RADIUS = 2; // a cube of chunks with side length 2n+1 is rendered
+	var DEFAULT_RENDER_CHUNK_RADIUS = 3; // a cube of chunks with side length 2n+1 is rendered
+	var RENDER_CHUNK_RADII = [ 6, 3, 2 ];
+	var renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
 	
 	this.player = new Entity(this);
 	this.player.position = vec3.createFrom(10, 3, 10),
@@ -48,7 +50,7 @@ self.World = function() {
 	};
 	
 	this.render = function(r) {
-		var renderChunks = getChunksAround(self.camera.position, RENDER_CHUNK_RADIUS);
+		var renderChunks = getChunksAround(self.camera.position, renderChunkRadius);
 		for (var i = 0; i < renderChunks.length; i++) {
 			var chunk = renderChunks[i];
 			chunk.render(r);
@@ -134,8 +136,8 @@ self.World = function() {
 	}
 	this.getIDAt = getIDAt;
 	
-	for (var x = -10; x < 10; x++) {
-		for (var z = -10; z < 10; z++) {
+	for (var x = -20; x < 20; x++) {
+		for (var z = -20; z < 20; z++) {
 			addChunk(x, 0, z);
 		}
 	}
@@ -174,8 +176,10 @@ self.World = function() {
 		self.player.applyForceToSpeed(force, speedX, 0);
 		self.player.applyForceToSpeed(force, speedZ, 2);
 		
-		if (input.isJump() && self.player.touchesGround())
+		if (input.isJump() && self.player.touchesGround()) {
+			input.resetJump();
 			self.player.momentum[1] += PLAYER_JUMP_SPEED * self.player.mass;
+		}
 		
 		if (input.isResetCamera()) {
 			var cameraTargetPosition = vec3.create(self.player.position);
@@ -186,6 +190,16 @@ self.World = function() {
 			vec3.scale(diff, CAMERA_HORIZONTAL_SPEED * elapsed);
 			vec3.add(diff, self.camera.position);
 			self.camera.tryMoveTo(diff);
+		}
+		
+		if (input.isSwitchRenderDistance()) {
+			input.resetSwitchRenderDistance();
+			var index = RENDER_CHUNK_RADII.indexOf(renderChunkRadius);
+			if (index < 0 || index >= RENDER_CHUNK_RADII.length - 1)
+				index = 0;
+			else
+				index++;
+			renderChunkRadius = RENDER_CHUNK_RADII[index];
 		}
 	}
 	

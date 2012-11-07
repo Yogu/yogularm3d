@@ -10,6 +10,7 @@ self.Input = function() {
 		PAGE_UP: 33,
 		PAGE_DOWN: 34,
 		A: 65,
+		F: 70,
 		CTRL: 17
 	}
 	
@@ -33,4 +34,8 @@ self.Input = function() {
 	this.isPageDown = function() { return self.pressedKeys[keys.PAGE_DOWN];};
 	this.isJump = function() { return self.pressedKeys[keys.A];};
 	this.isResetCamera = function() { return self.pressedKeys[keys.CTRL];};
+	this.isSwitchRenderDistance = function() { return self.pressedKeys[keys.F]; };
+	
+	this.resetSwitchRenderDistance = function() { self.pressedKeys[keys.F] = false; };
+	this.resetJump = function() { self.pressedKeys[keys.A] = false; };
 };

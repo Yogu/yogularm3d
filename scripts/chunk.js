@@ -25,7 +25,8 @@
 				var b = y + self.y * SIZE;
 				var c = z + self.z * SIZE;
 				
-				if (b == 0 || Math.cos((a + b) * (b + a) * (c - a)) < -0.96)
+				if ((b == 0) || 
+					(Math.cos((a + b) * (b + a) * (c - a)) < -0.96) && Math.tan(a + b + c) < 0.0001)
 						setID(x,y,z, 1); 
 			});
 		
