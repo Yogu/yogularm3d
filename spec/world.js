@@ -1,4 +1,4 @@
-describe('BoundingBox', function() {
+describe('World', function() {
 	it('should assign minVector and maxVector', function() {
 		var box = new BoundingBox([1,2,3], [4,5,6]);
 		expect(box.minVector).toEqual([1,2,3]);

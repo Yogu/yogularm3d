@@ -5,6 +5,7 @@
 		gravity: 9.81
 	};
 	
+	self.BoundingBox = null;
 	/**
 	 * Defines a box
 	 * 
@@ -13,7 +14,7 @@
 	 * @param minVector
 	 * @param maxVector
 	 */
-	self.BoundingBox = function(minVector, maxVector) {
+	BoundingBox = function(minVector, maxVector) {
 		this.minVector = minVector;
 		this.maxVector = maxVector;
 		
@@ -66,7 +67,7 @@
 				// would collide with
 				for (var y = startY; y <= endY; y++) {
 					for (var z = startZ; z <= endZ; z++) {
-						if (world.getIDAt(getRealCoordinates(x,y,z))) {
+						if (world.isBlocked(getRealCoordinates(x,y,z))) {
 							if (distance < 0) // add 1 to get the right edge
 								x = x - self.minVector[axis] + 1;
 							else // left edge
@@ -219,7 +220,7 @@
 				if (this.momentum[axis] != 0) {
 					var delta = this.momentum[axis] * elapsed / this.mass;
 					var impact = this.boundingBox.getImpactOnMove(
-							this.position, axis, delta, world);
+							this.position, axis, delta, this.world);
 					// Zero the momentum on collision
 					if (Math.abs(this.position[axis] + delta - impact[axis])
 						> 0.01)

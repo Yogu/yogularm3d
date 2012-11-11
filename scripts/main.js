@@ -7,7 +7,7 @@
 	var statusLabel = document.getElementById('status');
 	var gl = webgl.init(canvas);
 	
-	var world;
+	var game;
 	var renderer;
 	var input;
 	var elapsedSum = 0;
@@ -18,8 +18,8 @@
 	function init() {
 		console.log('Initializing game...');
 		showStatus('Loading resources...');
-		world = new World();
-		renderer = new Renderer(gl, world);
+		game = new Game();
+		renderer = new Renderer(gl);
 		input = new Input();
 		initViewport();
 		console.log('Waiting for resources to load...');
@@ -29,7 +29,7 @@
 		});
 		$(resources).on('load', startLoop);
 		
-		window.world = world;
+		window.game = game;
 	}
 	
 	function initViewport() {
@@ -51,8 +51,8 @@
 		function iteration() {
 			var elapsed = (new Date().getTime() - last) / 1000;
 			last = new Date().getTime();
-			world.update(elapsed, input);
-			renderer.render();
+			game.update(elapsed, input);
+			renderer.renderWorld(game.world);
 			requestAnimFrame(iteration, canvas);
 			
 			// Display FPS

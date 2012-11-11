@@ -213,7 +213,7 @@ self.Renderer = function(gl, world) {
 	
 	var triangleCount;
 	
-	this.render = function() {
+	this.renderWorld = function(world) {
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
 		resources.materials.white.apply(renderFunctions);
