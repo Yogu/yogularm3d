@@ -1,31 +1,48 @@
 describe('World', function() {
-	it('should assign minVector and maxVector', function() {
-		var box = new BoundingBox([1,2,3], [4,5,6]);
-		expect(box.minVector).toEqual([1,2,3]);
-		expect(box.maxVector).toEqual([4,5,6]);
+	var world;
+	
+	beforeEach(function() {
+		world = new World();
 	});
 	
-	describe('collision', function() {
-		var box;
-		
-		beforeEach(function() {
-			box = new BoundingBox([0,0,0], [1,1,1]);
-		});
-		
-		it('should not collide in empty world', function() {
-			var world = {
-				isBlocked: function(vector) {
-					return false;
-				}
-			};
-			
-			expect(box.getImpactOnMove([0,0,0], 0, 3, world), [3,0,0]);
-			expect(box.getImpactOnMove([0,0,0], 1, 2, world), [0,2,0]);
-			expect(box.getImpactOnMove([1,0,0], 2, -4, world), [1,0,-4]);
-		});
+	it('should be empty after creation', function() {
+		expect(world.getIDAt([0,0,0])).toEqual(0);
 	});
-});
-
-describe('Body', function() {
 	
+	it('allows putting objects', function() {
+		world.setIDAt([0,0,0], 1);
+		expect(world.getIDAt([0,0,0])).toEqual(1);
+	});
+	
+	it('keeps objects after pushing', function() {
+		world.setIDAt([0,0,0], 1);
+		world.push();
+		expect(world.getIDAt([0,0,0])).toEqual(1);
+	});
+	
+	it('allows to add objects after pushing', function() {
+		world.setIDAt([0,0,0], 1);
+		world.push();
+		world.setIDAt([1,0,0], 1);
+		expect(world.getIDAt([0,0,0])).toEqual(1);
+		expect(world.getIDAt([1,0,0])).toEqual(1);
+	});
+	
+	it('keeps changes after calling popAndApply', function() {
+		world.setIDAt([0,0,0], 1);
+		world.push();
+		world.setIDAt([1,0,0], 1);
+		world.popAndApply();
+		expect(world.getIDAt([0,0,0])).toEqual(1);
+		expect(world.getIDAt([1,0,0])).toEqual(1);
+	});
+	
+	it('discards changes after calling popAndKeep', function() {
+		world.setIDAt([0,0,0], 1);
+		world.push();
+		world.setIDAt([1,0,0], 1);
+		world.popAndDiscard();
+		expect(world.getIDAt([0,0,0])).toEqual(1);
+		expect(world.getIDAt([1,0,0])).toEqual(0);
+	});
 });

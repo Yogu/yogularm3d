@@ -18,6 +18,7 @@
 	 */
 	Game = function() {
 		this.world = new World();
+		this.world.initializeDefaultWorld();
 		this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
 		this.setUpPlayer();
 		this.setUpCamera();
