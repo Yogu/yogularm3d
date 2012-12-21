@@ -37,6 +37,7 @@ self.Model = function(url) {
 		var surfaceCount = 0;
 		
 		$.ajax({
+			dataType: 'text',
 			url: url,
 			success: function(data)  {
 				parseFile(data);
@@ -64,7 +65,7 @@ self.Model = function(url) {
 				$(self).trigger('load');
 			},
 			error: function(error) {
-				throw error;
+				throw error.statusText;
 			}
 		});
 		
