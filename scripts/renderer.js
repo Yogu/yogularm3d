@@ -51,8 +51,8 @@ self.Renderer = function(gl, world) {
 		
 		attributes.position = gl.getAttribLocation(program, "aPosition");
 		gl.enableVertexAttribArray(attributes.position);
-		attributes.location = gl.getAttribLocation(program, "aNormal");
-		gl.enableVertexAttribArray(attributes.location);
+		attributes.normal = gl.getAttribLocation(program, "aNormal");
+		gl.enableVertexAttribArray(attributes.normal);
 		attributes.textureCoords = gl.getAttribLocation(program, "aTextureCoord");
 		gl.enableVertexAttribArray(attributes.textureCoords);
 		uniforms.modelviewMatrix = gl.getUniformLocation(program, "uModelviewMatrix");
@@ -134,7 +134,6 @@ self.Renderer = function(gl, world) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.normals);
 			gl.vertexAttribPointer(attributes.normal, 3, gl.FLOAT, false, 0, 0);
 			
-			// Bind the texture coords
 			gl.bindBuffer(gl.ARRAY_BUFFER, options.textureCoords);
 			gl.vertexAttribPointer(attributes.textureCoords, 2, gl.FLOAT, false, 0, 0);
 			

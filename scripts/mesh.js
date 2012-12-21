@@ -37,11 +37,8 @@ self.Mesh = function(buffers) {
 	
 	this.render = function(r) {
 		if (!buffersBuilt) {
-			var d = new Date().getTime();
 			buildBuffers(r);
 			buffersBuilt = true;
-			console.log("Built mesh with " + triangleCount+ " triangles in  " +
-					(new Date().getTime() - d) + " ms");
 		}
 
 		r.drawElements({

@@ -145,8 +145,9 @@
 		},
 		
 		render: function(r) {
-			if (this.changed || !this.mesh)
+			if (this.changed || !this.mesh) {
 				this.mesh = this.createMesh();
+			}
 
 			var self = this;
 			r.updateMatrix(function(matrix) {
