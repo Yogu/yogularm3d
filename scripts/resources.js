@@ -12,13 +12,20 @@ self.resources = new (function() {
 		'yogu'
 	];
 
-	// Load models
+	// Initialize models
 	this.models = {};
 	for (var i = 0; i < models.length; i++) {
 		var name = models[i];
 		var url = 'models/' + name + '.obj';
 		this.models[name] = registerResource(new Model(url));
 	}
+	$(this.materials).on('load', function() {
+		console.log('materials loaded');
+		for (var i = 0; i < models.length; i++) {
+			var name = models[i];
+			self.models[name].loadModel();
+		}
+	});
 	
 	function registerResource(obj) {
 		console.log('registered resource');

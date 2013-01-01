@@ -9,9 +9,10 @@ self.Model = function(url) {
 	this.minVector = [null,null,null];
 	this.maxVector = [null,null,null];
 	
-	loadObjAsync(url);
-	
-	function loadObjAsync(url) {
+	this.loadModel = function() {
+		if (mesh !== null)
+			throw new Error("Called Model.load() twice");
+		
 		// Temporarily lists of vertices/normals/texturecoords that have occured in the file
 		// indices in OBJ format are 1-based, so we can add a ZERO element.
 		var indexedVertices = [[0,0,0]];
@@ -157,7 +158,7 @@ self.Model = function(url) {
 				return vertices.length / 3 - 1; // vertices contains 3 elements per vertex
 			}
 		}
-	}
+	};
 	
 	this.render = function(r) {
 		if (mesh != null) {
