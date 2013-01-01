@@ -10,37 +10,37 @@ describe('World', function() {
 	});
 	
 	it('allows putting objects', function() {
-		world.setIDAt([0,0,0], 1);
+		world.place([0,0,0], Block.blocks.solid);
 		expect(world.getIDAt([0,0,0])).toEqual(1);
 	});
 	
 	it('keeps objects after pushing', function() {
-		world.setIDAt([0,0,0], 1);
+		world.place([0,0,0], Block.blocks.solid);
 		world.push();
 		expect(world.getIDAt([0,0,0])).toEqual(1);
 	});
 	
 	it('allows to add objects after pushing', function() {
-		world.setIDAt([0,0,0], 1);
+		world.place([0,0,0], Block.blocks.solid);
 		world.push();
-		world.setIDAt([1,0,0], 1);
+		world.place([1,0,0], Block.blocks.solid);
 		expect(world.getIDAt([0,0,0])).toEqual(1);
 		expect(world.getIDAt([1,0,0])).toEqual(1);
 	});
 	
 	it('keeps changes after calling popAndApply', function() {
-		world.setIDAt([0,0,0], 1);
+		world.place([0,0,0], Block.blocks.solid);
 		world.push();
-		world.setIDAt([1,0,0], 1);
+		world.place([1,0,0], Block.blocks.solid);
 		world.popAndApply();
 		expect(world.getIDAt([0,0,0])).toEqual(1);
 		expect(world.getIDAt([1,0,0])).toEqual(1);
 	});
 	
 	it('discards changes after calling popAndKeep', function() {
-		world.setIDAt([0,0,0], 1);
+		world.place([0,0,0], Block.blocks.solid);
 		world.push();
-		world.setIDAt([1,0,0], 1);
+		world.place([1,0,0], Block.blocks.solid);
 		world.popAndDiscard();
 		expect(world.getIDAt([0,0,0])).toEqual(1);
 		expect(world.getIDAt([1,0,0])).toEqual(0);
