@@ -128,7 +128,7 @@ self.World = function() {
 	 * Pops the stack and applies all changes to the new stack position
 	 */
 	function popAndApply() {
-		if (chunkStack.length == 0)
+		if (chunkStack.length <= 1)
 			throw new Error('pop called more often than push');
 		var topChunks = getTopChunks();
 		var newTop = chunkStack[chunkStack.length - 2];
@@ -138,6 +138,10 @@ self.World = function() {
 		chunkStack.pop();
 	}
 	this.popAndApply = popAndApply;
+	
+	this.canPop = function() {
+		return chunkStack.length > 1;
+	};
 	
 	/**
 	 * Gets the length of the chunk stack. 1 is the initial value.
@@ -208,7 +212,7 @@ self.World = function() {
 		chunk.setFlagsAt(coordsInChunk, id);
 	}
 	
-	function placeBlock(position, block) {
+	function place(position, block) {
 		var chunk = getChunkForWriting(getChunkCoordsOf(position));
 		var coordsInChunk = getCoordsInChunkOf(position);
 		var flags = chunk.getFlagsAt(coordsInChunk);
@@ -217,7 +221,7 @@ self.World = function() {
 		// ============== Check ==============
 		
 		if ((flags & FLAG_TAKEN) != 0
-			|| (isBlock && (flags & (FLAG_KEEP_FREE)) != 0))
+			|| (isBlock && ((flags & FLAG_KEEP_FREE)) != 0))
 			return false;
 		
 		flags |= FLAG_TAKEN;
@@ -235,34 +239,34 @@ self.World = function() {
 		
 		return true;
 	}
-	this.placeBlock = placeBlock;
+	this.place = place;
 
 	this.isBlocked = function(vector) {
-		return getFlagsAt(vector) & FLAG_BLOCKED != 0;
+		return (getFlagsAt(vector) & FLAG_BLOCKED) != 0;
 	};
 
 	this.isFree = function(vector) {
-		return getFlagsAt(vector) & FLAG_BLOCKED == 0;
+		return (getFlagsAt(vector) & FLAG_BLOCKED) == 0;
 	};
 
 	this.isSafe = function(vector) {
 		var flags = getFlagsAt(vector);
-		return (flags & FLAG_SAFE != 0) && (flags & FLAG_BLOCKED == 0);
+		return (flags & FLAG_SAFE) != 0 && (flags & FLAG_BLOCKED) == 0;
 	};
 
-	this.canPlaceBlock = function(vector) {
+	this.canPlaceSolid = function(vector) {
 		var flags = getFlagsAt(vector);
-		return (flags & FLAG_TAKEN != 0) && (flags & FLAG_KEEP_FREE == 0);
+		return (flags & FLAG_TAKEN) != 0 && (flags & FLAG_KEEP_FREE) == 0;
 	};
 
 	this.canPlace = function(vector) {
 		var flags = getFlagsAt(vector);
-		return (flags & FLAG_TAKEN != 0);
+		return (flags & FLAG_TAKEN) != 0;
 	};
 
 	this.keepFree = function(vector) {
 		var flags = getFlagsAt(vector);
-		if (flags & FLAG_BLOCKED)
+		if ((flags & FLAG_BLOCKED) != 0)
 			return false;
 		flags |= FLAG_KEEP_FREE;
 		setFlagsAt(vector, flags);
@@ -271,7 +275,7 @@ self.World = function() {
 
 	function makeSafe(vector) {
 		var flags = getFlagsAt(vector);
-		if (flags & FLAG_BLOCKED)
+		if ((flags & FLAG_BLOCKED) != 0)
 			return false;
 		flags |= FLAG_SAFE;
 		setFlagsAt(vector, flags);
@@ -285,7 +289,7 @@ self.World = function() {
 				for (var y = 0; y < 16; y++) {
 					if ((y == 0) || 
 						(Math.cos((x + y) * (y + x) * (z - x)) < -0.96) && Math.tan(x + y + z) < 0.0001)
-							placeBlock([x,y,z], Block.blocks.solid);
+							place([x,y,z], Block.blocks.solid);
 				}
 			}
 		}

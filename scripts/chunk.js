@@ -43,6 +43,7 @@
 				throw "Illegal argument for setID";
 			
 			this.blockIDs[x * SIZE * SIZE + y * SIZE + z] = id;
+			this.changed = true;
 		},
 		
 		getFlagsAt: function(x,y,z) {

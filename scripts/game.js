@@ -11,6 +11,7 @@
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
 	var PLAYER_ACCELERATION = 40;
 	var PLAYER_AIR_ACCELERATION = 20;
+	var BUILD_DISTANCE = 20;
 
 	window.Game = null;
 	/**
@@ -18,10 +19,11 @@
 	 */
 	Game = function() {
 		this.world = new World();
-		this.world.initializeDefaultWorld();
+		this.builder = new TestBuilder(this.world);
 		this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
 		this.setUpPlayer();
 		this.setUpCamera();
+		this.build();
 	};
 	
 	Game.prototype = {
@@ -34,6 +36,7 @@
 		 * @param {Input} input information about pressed keys etc.
 		 */
 		update: function(elapsed, input) {
+			this.build();
 			this.applyInput(elapsed, input);
 			this.updateCamera(elapsed);
 			this.world.update(elapsed);
@@ -41,7 +44,7 @@
 		
 		setUpPlayer: function() {
 			var player = this.world.player;
-			player.position = vec3.createFrom(10, 3, 10),
+			player.position = vec3.createFrom(0.5, 0, 0.5),
 			player.rotation = vec3.createFrom(0, 0, 0);
 			player.boundingBox.minVector = vec3.createFrom(-0.45, 0, -0.45);
 			player.boundingBox.maxVector = vec3.createFrom(0.45, 0.9, 0.45);
@@ -61,6 +64,11 @@
 			camera.rotation = vec3.createFrom(Math.PI / 32, Math.PI * 0,0);
 			camera.boundingBox.minVector = vec3.createFrom(-0.2, -0.2, -0.2);
 			camera.boundingBox.maxVector = vec3.createFrom(0.2, 0.2, 0.2);
+		},
+		
+		build: function() {
+			this.builder.build(this.world.player.position, BUILD_DISTANCE);
+			this.builder.build(this.world.camera.position, BUILD_DISTANCE);
 		},
 		
 		/**
