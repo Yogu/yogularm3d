@@ -20,8 +20,10 @@
 			for (var i = min; i <= max; i++) {
 				var vec = vec3.create(source);
 				vec[axis] = i;
-				if (!world.isSafe(vec))
+				if (!world.isSafe(vec)) {
+					console.log('    Straight move failed on ' + debug.formatVector(vec));
 					return false;
+				}
 				trace.push(vec);
 			}
 			console.log('    Works with straight move');

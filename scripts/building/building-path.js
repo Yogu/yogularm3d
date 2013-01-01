@@ -75,6 +75,7 @@
 			}
 			this.world.keepFree(target);
 			this.currentWaypoint = vec3.create(target);
+			return true;
 		}
 	};
 })();
