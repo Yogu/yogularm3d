@@ -31,7 +31,9 @@
 		popAndDiscard: function() {
 			if (this.stack.length == 0)
 				throw new Error('pop called more often than push');
-			this.stack.pop();
+			var state = this.stack.pop();
+			this.currentWaypoint = state.currentWaypoint;
+			this.world.popAndDiscard();
 		},
 		
 		/**
@@ -40,8 +42,8 @@
 		popAndApply: function() {
 			if (this.stack.length == 0)
 				throw new Error('pop called more often than push');
-			var state = this.stack.pop();
-			this.currentWaypoint = state.currentWaypoint;
+			this.stack.pop();
+			this.world.popAndApply();
 		},
 		
 		/**

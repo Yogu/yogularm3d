@@ -1,23 +1,11 @@
 (function() {
 	"use strict";
 	
-	var constants = {
-		gravity: 9.81,
-	};
-	self.Physics = {
-		constants: constants
-	};
-	
-	self.BoundingBox = null;
+	self.Parabola = null;
 	/**
-	 * Defines a box
-	 * 
-	 * This box can be used to calculate collisions
-	 * 
-	 * @param minVector
-	 * @param maxVector
+	 * Defines a parabola in three dimensional space
 	 */
-	BoundingBox = function(minVector, maxVector) {
+	Parabola = function(factor, apex) {
 		this.minVector = minVector;
 		this.maxVector = maxVector;
 		

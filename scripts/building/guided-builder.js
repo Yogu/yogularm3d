@@ -25,7 +25,7 @@
 				this.pathBuilder.build();
 				if (this.world.canPop())
 					throw new Error("Path builder missed to pop world's cache");
-				if (iteration > 50) {
+				if (iteration > 5) {
 					console.log('Path builder seems to be stuck');
 					break;
 				}

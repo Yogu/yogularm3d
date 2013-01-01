@@ -1,17 +1,18 @@
 (function() {
 	var DEFAULT_RENDER_CHUNK_RADIUS = 3; // a cube of chunks with side length 2n+1 is rendered
 	var RENDER_CHUNK_RADII = [ 6, 3, 2 ];
+	var PLAYER_ROTATE_SPEED = 20;
+	var CAMERA_HORIZONTAL_SPEED = 2;
+	var CAMERA_VERTICAL_SPEED = 4;
+	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
+	var PLAYER_CAMERA_VERTICAL_DISTANCE = 2;//1.5;
+	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
+	var BUILD_DISTANCE = 5;
+
 	var PLAYER_SPEED = 5;
 	var PLAYER_JUMP_SPEED = 5.2;
-	var PLAYER_ROTATE_SPEED = 20;
-	var CAMERA_HORIZONTAL_SPEED = 4;
-	var CAMERA_VERTICAL_SPEED = 4;
-	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
-	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
-	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
 	var PLAYER_ACCELERATION = 40;
 	var PLAYER_AIR_ACCELERATION = 20;
-	var BUILD_DISTANCE = 20;
 
 	window.Game = null;
 	/**
@@ -25,6 +26,11 @@
 		this.setUpCamera();
 		this.build();
 	};
+	
+	Game.PLAYER_SPEED = PLAYER_SPEED;
+	Game.PLAYER_JUMP_SPEED = PLAYER_JUMP_SPEED;
+	Game.PLAYER_ACCELERATION = PLAYER_ACCELERATION;
+	Game.PLAYER_AIR_ACCELERATION = PLAYER_AIR_ACCELERATION;
 	
 	Game.prototype = {
 		/**
@@ -167,16 +173,23 @@
 			// Rotation: The camera should look to the player
 			var cameraToPlayer = vec3.subtract(world.player.position, world.camera.position, vec3.create());
 			var direction = vec3.normalize(cameraToPlayer, vec3.create());
-			// pi/2 - alpha: Proved by trial
-			var targetAngle = Math.PI * 0.5 -
-				geo.angleBetween2DVectors(cameraToPlayer[0], cameraToPlayer[2], 1, 0);
-			var diff = (world.camera.rotation[1] - targetAngle) % (Math.PI * 2);
-			// Calculate the correct direction to rotate
-			if (diff > Math.PI)
-				diff -= (2 * Math.PI);
-			if (diff < -Math.PI)
-				diff += 2 * Math.PI;
-			world.camera.rotation[1] -= diff * elapsed * CAMERA_ROTATE_SPEED;
+			// rotation around x and y axis
+			for (var axis = 0; axis <= 1; axis++) {
+				var targetAngle;
+				if (axis == 0)
+					targetAngle = geo.angleBetween2DVectors(
+						-Math.cos(world.camera.rotation[1]) * cameraToPlayer[2] + Math.sin(world.camera.rotation[1]) * cameraToPlayer[0],
+						cameraToPlayer[1], 1, 0);
+				else
+					targetAngle = (Math.PI * 0.5) - geo.angleBetween2DVectors(cameraToPlayer[0], cameraToPlayer[2], 1, 0);
+				var diff = (world.camera.rotation[axis] - targetAngle) % (Math.PI * 2);
+				// Calculate the correct direction to rotate
+				if (diff > Math.PI)
+					diff -= (2 * Math.PI);
+				if (diff < -Math.PI)
+					diff += 2 * Math.PI;
+				world.camera.rotation[axis] -= diff * elapsed * CAMERA_ROTATE_SPEED;
+			}
 			
 			// Move behind the player
 			var moveSpeed = elapsed * CAMERA_HORIZONTAL_SPEED;
