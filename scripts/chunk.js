@@ -23,20 +23,6 @@
 	};
 	
 	Chunk.prototype = {
-		initializeDefaultWorld: function() {
-			var self = this;
-			this.forEachBlock(
-				function(x,y,z) {
-					var a = x + self.x * SIZE;
-					var b = y + self.y * SIZE;
-					var c = z + self.z * SIZE;
-					
-					if ((b == 0) || 
-						(Math.cos((a + b) * (b + a) * (c - a)) < -0.96) && Math.tan(a + b + c) < 0.0001)
-							self.setIDAt([x,y,z], 1); 
-				});
-		},
-		
 		getIDAt: function(x,y,z) {
 			if (x.length != null) {
 				z = x[2];
@@ -57,6 +43,28 @@
 				throw "Illegal argument for setID";
 			
 			this.blockIDs[x * SIZE * SIZE + y * SIZE + z] = id;
+		},
+		
+		getFlagsAt: function(x,y,z) {
+			if (x.length != null) {
+				z = x[2];
+				y = x[1];
+				x = x[0];
+			}
+			if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
+				throw "Illegal argument for getFlagsAt(x,y,z)";
+			
+			return this.blockFlags[x * SIZE * SIZE + y * SIZE + z];
+		},
+		
+		setFlagsAt: function(position, flags) {
+			var x = position[0];
+			var y = position[1];
+			var z = position[2];
+			if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
+				throw "Illegal argument for setFlagsAt";
+			
+			this.blockFlags[x * SIZE * SIZE + y * SIZE + z] = flags;
 		},
 		
 		forEachBlock: function(callback) {

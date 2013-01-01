@@ -16,6 +16,11 @@ self.World = function() {
 	// Holds the stack of chunk lists. Each chunk list is a map of coordinates
 	// to Chunk objects ("x,y,z" => Chunk).
 	var chunkStack = [[]];
+
+	var FLAG_BLOCKED = 0x01;
+	var FLAG_KEEP_FREE = 0x02; // may be blocked temporarily
+	var FLAG_SAFE = 0x04;
+	var FLAG_TAKEN = 0x08; // by solid or non-solid component
 	
 	this.update = function(elapsed, input) {
 		self.player.update(elapsed);
@@ -185,16 +190,100 @@ self.World = function() {
 		var chunk = getChunkForWriting(chunkCoords);
 		chunk.setIDAt(coordsInChunk, id);
 	}
-	this.setIDAt = setIDAt;
+	
+	function getFlagsAt(vector) {
+		var chunkCoords = getChunkCoordsOf(vector);
+		var coordsInChunk = getCoordsInChunkOf(vector);
+		var chunk = getChunkForReading(chunkCoords);
+		if (chunk != null)
+			return chunk.getFlagsAt(coordsInChunk);
+		else
+			return 0;
+	}
+
+	function setFlagsAt(vector, id) {
+		var chunkCoords = getChunkCoordsOf(vector);
+		var coordsInChunk = getCoordsInChunkOf(vector);
+		var chunk = getChunkForWriting(chunkCoords);
+		chunk.setFlagsAt(coordsInChunk, id);
+	}
+	
+	function placeBlock(position, block) {
+		var flags = getFlagsAt(position);
+		var isBlock = block.isBlock;
+		
+		// ============== Check ==============
+		
+		if ((flags & FLAG_TAKEN) != 0
+			|| (isBlock && (flags & (FLAG_KEEP_FREE)) != 0))
+			return false;
+		
+		flags |= FLAG_TAKEN;
+		if (isBlock) {
+			flags |= FLAG_BLOCKED;
+		}
+
+		// ============== Do ==============
+		
+		setIDAt(position, block.id);
+		setFlagsAt(position, flags);
+		
+		if (isBlock)
+			makeSafe([position[0], position[1] + 1, position[2]]);
+		
+		return true;
+	}
+	this.placeBlock = placeBlock;
 
 	this.isBlocked = function(vector) {
-		return getIDAt(vector) != 0;
+		return getFlagsAt(vector) & FLAG_BLOCKED != 0;
+	};
+
+	this.isFree = function(vector) {
+		return getFlagsAt(vector) & FLAG_BLOCKED == 0;
+	};
+
+	this.isSafe = function(vector) {
+		var flags = getFlagsAt(vector);
+		return (flags & FLAG_SAFE != 0) && (flags & FLAG_BLOCKED == 0);
+	};
+
+	this.canPlaceBlock = function(vector) {
+		var flags = getFlagsAt(vector);
+		return (flags & FLAG_TAKEN != 0) && (flags & FLAG_KEEP_FREE == 0);
+	};
+
+	this.canPlace = function(vector) {
+		var flags = getFlagsAt(vector);
+		return (flags & FLAG_TAKEN != 0);
+	};
+
+	this.keepFree = function(vector) {
+		var flags = getFlagsAt(vector);
+		if (flags & FLAG_BLOCKED)
+			return false;
+		flags |= FLAG_KEEP_FREE;
+		setFlagsAt(vector, flags);
+		return true;
+	};
+
+	function makeSafe(vector) {
+		var flags = getFlagsAt(vector);
+		if (flags & FLAG_BLOCKED)
+			return false;
+		flags |= FLAG_SAFE;
+		setFlagsAt(vector, flags);
+		return true;
 	};
 	
 	this.initializeDefaultWorld = function() {
-		for (var x = -20; x < 20; x++) {
-			for (var z = -20; z < 20; z++) {
-				getChunkForWriting([x, 0, z]).initializeDefaultWorld();
+		for (var x = -320; x < 320; x++) {
+			for (var z = -320; z < 320; z++) {
+				for (var y = 0; y < 16; y++) {
+					if ((y == 0) || 
+						(Math.cos((x + y) * (y + x) * (z - x)) < -0.96) && Math.tan(x + y + z) < 0.0001)
+							placeBlock([x,y,z], Block.blocks.solid);
+				}
 			}
 		}
 	};

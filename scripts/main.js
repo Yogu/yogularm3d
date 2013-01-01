@@ -50,6 +50,8 @@
 		var last = new Date().getTime();
 		function iteration() {
 			var elapsed = (new Date().getTime() - last) / 1000;
+			if (elapsed > 0.1)
+				elapsed = 0.1;
 			last = new Date().getTime();
 			game.update(elapsed, input);
 			renderer.renderWorld(game.world);
