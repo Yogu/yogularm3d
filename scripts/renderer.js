@@ -34,6 +34,8 @@ self.Renderer = function(gl, world) {
 		// Near things obscure far things
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.enable(gl.BLEND);
 		
 		gl.enable(gl.CULL_FACE);
 	}

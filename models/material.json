@@ -3,6 +3,10 @@
 		"texture": "texture.png"
 	},
 	
+	"shadow": {
+		"texture": "shadow.png"
+	},
+	
 	"white": {
 		"color": [1,1,1,1]
 	},

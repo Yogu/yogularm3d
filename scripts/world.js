@@ -26,6 +26,8 @@ self.World = function() {
 		self.player.update(elapsed);
 	};
 	
+	var dropShadowMesh = null;
+	
 	this.render = function(r) {
 		var renderChunks = getChunksAround(self.camera.position, self.renderChunkRadius);
 		for (var i = 0; i < renderChunks.length; i++) {
@@ -33,8 +35,39 @@ self.World = function() {
 			chunk.render(r);
 		}
 		
+		renderDropShadow(r, self.player);
 		self.player.render(r);
 	};
+	
+	function renderDropShadow(r, body) {
+		if (dropShadowMesh == null) {
+			dropShadowMesh = new Mesh({
+				vertices: [
+							0, 0, 0,
+							0, 0, 1,
+							1, 0, 1,
+							1, 0, 0,],
+				normals: [0,1,0, 0,1,0, 0,1,0, 0,1,0],
+				textureCoords: [0.0,	0.0,
+				        		1.0,	0.0,
+				        		1.0,	1.0,
+				        		0.0,	1.0],
+				surfaces: [{
+					material: resources.materials.shadow,
+					triangles: [0,1,2,0,2,3]
+				}]
+			});
+		}
+		
+		// Project the body's center to the bottom
+		var bottom = vec3.add(body.position, [-0.5, -20, -0.5], vec3.create());
+		bottom = body.getImpact(bottom);
+		bottom[1] += 0.01;
+		r.updateMatrix(function(matrix) {
+			matrix.translate(bottom);
+			dropShadowMesh.render(r);
+		});
+	}
 	
 	function getChunksAround(position, radius) {
 		// get the center
