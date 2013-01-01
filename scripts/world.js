@@ -209,7 +209,9 @@ self.World = function() {
 	}
 	
 	function placeBlock(position, block) {
-		var flags = getFlagsAt(position);
+		var chunk = getChunkForWriting(getChunkCoordsOf(position));
+		var coordsInChunk = getCoordsInChunkOf(position);
+		var flags = chunk.getFlagsAt(coordsInChunk);
 		var isBlock = block.isBlock;
 		
 		// ============== Check ==============
@@ -225,8 +227,8 @@ self.World = function() {
 
 		// ============== Do ==============
 		
-		setIDAt(position, block.id);
-		setFlagsAt(position, flags);
+		chunk.setIDAt(coordsInChunk, block.id);
+		chunk.setFlagsAt(coordsInChunk, flags);
 		
 		if (isBlock)
 			makeSafe([position[0], position[1] + 1, position[2]]);
@@ -277,8 +279,9 @@ self.World = function() {
 	};
 	
 	this.initializeDefaultWorld = function() {
-		for (var x = -320; x < 320; x++) {
-			for (var z = -320; z < 320; z++) {
+		var size = 50;
+		for (var x = -size; x < size; x++) {
+			for (var z = -size; z < size; z++) {
 				for (var y = 0; y < 16; y++) {
 					if ((y == 0) || 
 						(Math.cos((x + y) * (y + x) * (z - x)) < -0.96) && Math.tan(x + y + z) < 0.0001)
