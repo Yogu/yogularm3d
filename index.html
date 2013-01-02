@@ -5,6 +5,7 @@
 		<meta charset="utf-8" />
 		
 		<link rel="stylesheet" type="text/css" href="stylesheets/style.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		
 		<script id="3d-vertex-shader" type="x-shader/x-vertex">
 			precision highp float;
@@ -68,7 +69,13 @@
 			</div>
 			<div id="status" style="display: none;">Loading...</div>
 			<div id="hints">Arrow keys: run &middot; A: jump &middot; Ctrl: Reset camera</div>
-			<input type="text"id="keyboard-input-dummy" />
+			<div id="buttons">
+				<button id="left">&larr;</button>
+				<button id="right">&rarr;</button>
+				<button id="up">&uarr;</button>
+				<button id="down">&darr;</button>
+				<button id="jump">↥</button>
+			</div>
 		</div>
 		
 		<script type="text/javascript">

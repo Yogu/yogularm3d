@@ -15,6 +15,7 @@ self.Input = function() {
 	}
 	
 	document.addEventListener('keydown', function(event) {
+		$('#buttons').hide();
 		self.pressedKeys[event.keyCode] = true;
 	});
 	
@@ -38,4 +39,34 @@ self.Input = function() {
 	
 	this.resetSwitchRenderDistance = function() { self.pressedKeys[keys.F] = false; };
 	this.resetJump = function() { self.pressedKeys[keys.A] = false; };
+	
+	$('#buttons button').on('touchstart', function() {
+		var key = idToKey(this.id);
+		if (key !== null)
+			self.pressedKeys[key] = true;
+	});
+
+	$('#buttons button').on('touchend', function() {
+		var key = idToKey(this.id);
+		if (key !== null)
+			self.pressedKeys[key] = false;
+	});
+	
+	function idToKey(id) {
+		var key;
+		switch (id) {
+		case 'left':
+			return keys.LEFT;
+		case 'right':
+			return keys.RIGHT;
+		case 'up':
+			return keys.UP;
+		case 'down':
+			return keys.DOWN;
+		case 'jump':
+			return keys.A;
+		default:
+			return false;
+		}		
+	}
 };
