@@ -32,5 +32,5 @@
 			return false;
 	};
 	
-	//BuildingPath.MOVE_STRATEGIES.push(StraightMoveStrategy);
+	BuildingPath.MOVE_STRATEGIES.push(StraightMoveStrategy);
 })();

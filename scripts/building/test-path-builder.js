@@ -11,9 +11,9 @@
 	TestPathBuilder.prototype = {
 		build: function() {
 			for (var iteration = 0; iteration < 5; iteration++) {
-				var offset = [Math.round(Math.random() * 6 - 0),
-				              Math.round(Math.random() * 3 - 2),
-				              Math.round(Math.random() * 6 - 0)];
+				var offset = [Math.round(Math.random() * 6 - 5),
+				              Math.round(Math.random() * 3 - 1),
+				              Math.round(Math.random() * 6 - 5)];
 				if (offset[0] == 0 && offset[2] == 0)
 					continue;
 				

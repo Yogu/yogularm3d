@@ -37,7 +37,7 @@
 		// high as we can jump, otherwise use the parabola formula to calculate max height
 		var maxHeight;
 		if (distance < jumpApex[0])
-			maxHeight = jumpApex[1];
+			maxHeight = source[1] + jumpApex[1];
 		else {
 			var x = (distance - jumpApex[0]);
 			maxHeight = source[1] - x * x * parabolaFactor;
@@ -51,6 +51,8 @@
 		}
 			
 		console.log('    first step succeeded');
+		
+		// TODO: check if there is space
 			
 		return [];
 	};};

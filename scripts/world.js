@@ -59,10 +59,16 @@ self.World = function() {
 			});
 		}
 		
+		var maxDistance = 20;
 		// Project the body's center to the bottom
-		var bottom = vec3.add(body.position, [-0.5, -20, -0.5], vec3.create());
-		bottom = body.getImpact(bottom);
-		bottom[1] += 0.01;
+		var boundingBox = new BoundingBox(vec3.create(), vec3.create()); // zero box
+		var bottom = boundingBox.getImpactOnMove(body.position, 1 /* y axis */, -maxDistance, self);
+		
+		// don't render the shadow if no impact was found
+		if (bottom[1] < body.position[1] - maxDistance + 0.1)
+			return;
+		
+		vec3.add(bottom, [-0.5, 0.01,-0.5]);
 		r.updateMatrix(function(matrix) {
 			matrix.translate(bottom);
 			dropShadowMesh.render(r);
