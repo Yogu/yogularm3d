@@ -8,6 +8,7 @@
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 2;//1.5;
 	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
 	var BUILD_DISTANCE = 20;
+	var SPEED_OF_DEATH = -20;
 
 	var PLAYER_SPEED = 5;
 	var PLAYER_JUMP_SPEED = 5.2;
@@ -19,12 +20,7 @@
 	 * @constructor Creates the game logic
 	 */
 	Game = function() {
-		this.world = new World();
-		this.builder = new TestBuilder(this.world);
-		this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
-		this.setUpPlayer();
-		this.setUpCamera();
-		this.build();
+		this.resetWorld();
 	};
 	
 	Game.PLAYER_SPEED = PLAYER_SPEED;
@@ -33,6 +29,15 @@
 	Game.PLAYER_AIR_ACCELERATION = PLAYER_AIR_ACCELERATION;
 	
 	Game.prototype = {
+		resetWorld: function() {
+			this.world = new World();
+			this.builder = new TestBuilder(this.world);
+			this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
+			this.setUpPlayer();
+			this.setUpCamera();
+			this.build();
+		},
+			
 		/**
 		 * Processes one step in game logic
 		 * 
@@ -46,6 +51,9 @@
 			this.applyInput(elapsed, input);
 			this.updateCamera(elapsed);
 			this.world.update(elapsed);
+			
+			if (this.world.player.momentum[1] / this.world.player.mass < SPEED_OF_DEATH)
+				this.resetWorld();
 		},
 		
 		setUpPlayer: function() {
