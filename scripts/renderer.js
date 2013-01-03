@@ -75,11 +75,13 @@ self.Renderer = function(gl, world) {
 	var normalMatrixBase = matrix;
 	
 	function pushMatrix() {
-		matrices.push(mat4.create(matrix));
+		matrices.push({matrix: mat4.create(matrix), normalMatrixBase: mat4.create(normalMatrixBase) });
 	}
 	
 	function popMatrix() {
-		matrix = matrices.pop();
+		var obj = matrices.pop();
+		matrix = obj.matrix;
+		normalMatrixBase = obj.normalMatrixBase;
 	}
 	
 	var renderFunctions = {

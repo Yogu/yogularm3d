@@ -29,6 +29,8 @@ self.World = function() {
 	var dropShadowMesh = null;
 	
 	this.render = function(r) {
+		self.player.render(r);
+		
 		var renderChunks = getChunksAround(self.camera.position, self.renderChunkRadius);
 		for (var i = 0; i < renderChunks.length; i++) {
 			var chunk = renderChunks[i];
@@ -36,7 +38,6 @@ self.World = function() {
 		}
 		
 		renderDropShadow(r, self.player);
-		self.player.render(r);
 	};
 	
 	function renderDropShadow(r, body) {
