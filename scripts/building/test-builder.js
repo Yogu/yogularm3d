@@ -5,7 +5,9 @@
 	/**
 	 * @constructor
 	 */
-	TestBuilder = function(world) {
+	TestBuilder = function(world, pathBuilder) {
+		// must be assigned first
+		this.pathBuilder = pathBuilder;
 		GuidedBuilder.call(this, world);
 	};
 	
@@ -15,7 +17,7 @@
 		},
 		
 		getFirstPathBuilder: function() {
-			return new TestPathBuilder(new BuildingPath(this.world, [0,0,0]));
+			return new this.pathBuilder(new BuildingPath(this.world, [0,0,0]));
 		}
 	};
 	

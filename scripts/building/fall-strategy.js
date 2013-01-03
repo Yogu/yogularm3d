@@ -56,7 +56,7 @@
 		var x2 = target[0];
 		var xMin = Math.min(x1, x2);
 		var xMax = Math.max(x1, x2);
-		for (var x = source[0]; x <= target[0]; x++) {
+		for (var x = xMin; x <= xMax; x++) {
 			var z1 = source[2];
 			var z2 = target[2];
 			var zMin = Math.min(z1, z2);
@@ -83,7 +83,10 @@
 				yMin = Math.max(yMin, Math.min(source[1], target[1]));
 				
 				for (var y = yMin; y <= yMax; y++) {
-					trace.push([x,y,z]);
+					var tracePoint = [x, y, z];
+					if (!world.isFree(tracePoint))
+						return false;
+					trace.push(tracePoint);
 				}
 			}
 		}

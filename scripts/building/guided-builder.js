@@ -19,16 +19,10 @@
 		 * @param distance radius of the sphere
 		 */
 		build: function(center, distance) {
-			var iteration = 0;
-			while (vec3.dist(center, this.pathBuilder.path.currentWaypoint) < distance) {
-				iteration++;
+			if (vec3.dist(center, this.pathBuilder.path.currentWaypoint) < distance) {
 				this.pathBuilder.build();
 				if (this.world.canPop())
 					throw new Error("Path builder missed to pop world's cache");
-				if (iteration > 5) {
-					console.log('Path builder seems to be stuck');
-					break;
-				}
 			}
 		}
 	};

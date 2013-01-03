@@ -8,6 +8,7 @@
 	BuildingPath = function(world, startPoint) {
 		this.world = world;
 		this.currentWaypoint = startPoint;
+		this.lastTrace = [];
 		this.stack = [];
 		this.pushState();
 	};
@@ -16,8 +17,9 @@
 	
 	BuildingPath.prototype = {
 		pushState: function() {
-			this.stack.push({currentWaypoint: this.currentWaypoint});
+			this.stack.push({currentWaypoint: this.currentWaypoint, lastTrace: this.lastTrace});
 			this.currentWaypoint = vec3.create(this.currentWaypoint);
+			this.lastTrace = vec3.create(this.lastTrace);
 		},
 			
 		push: function() {
@@ -33,6 +35,7 @@
 				throw new Error('pop called more often than push');
 			var state = this.stack.pop();
 			this.currentWaypoint = state.currentWaypoint;
+			this.lastTrace = state.lastTrace;
 			this.world.popAndDiscard();
 		},
 		
@@ -77,6 +80,7 @@
 			}
 			this.world.keepFree(target);
 			this.currentWaypoint = vec3.create(target);
+			this.lastTrace = trace;
 			return true;
 		}
 	};

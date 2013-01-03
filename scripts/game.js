@@ -7,7 +7,7 @@
 	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
 	var PLAYER_CAMERA_VERTICAL_DISTANCE = 2;//1.5;
 	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
-	var BUILD_DISTANCE = 20;
+	var BUILD_DISTANCE = 10;
 	var SPEED_OF_DEATH = -20;
 
 	var PLAYER_SPEED = 5;
@@ -31,7 +31,7 @@
 	Game.prototype = {
 		resetWorld: function() {
 			this.world = new World();
-			this.builder = new TestBuilder(this.world);
+			this.builder = new TestBuilder(this.world, TestPathBuilder);
 			this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
 			this.setUpPlayer();
 			this.setUpCamera();
@@ -74,8 +74,8 @@
 		
 		setUpCamera: function() {
 			var camera = this.world.camera;
-			camera.position = vec3.createFrom(20, 2.5, 20);
-			camera.rotation = vec3.createFrom(Math.PI / 32, Math.PI * 0,0);
+			camera.position = vec3.createFrom(0.5, 2, 4);
+			camera.rotation = vec3.createFrom(0.5, 0, 0);
 			camera.boundingBox.minVector = vec3.createFrom(-0.2, -0.2, -0.2);
 			camera.boundingBox.maxVector = vec3.createFrom(0.2, 0.2, 0.2);
 		},

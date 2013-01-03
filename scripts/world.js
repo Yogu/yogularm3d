@@ -261,8 +261,9 @@ self.World = function() {
 		// ============== Check ==============
 		
 		if ((flags & FLAG_TAKEN) != 0
-			|| (isBlock && ((flags & FLAG_KEEP_FREE)) != 0))
+			|| (isBlock && ((flags & FLAG_KEEP_FREE)) != 0)) {
 			return false;
+		}
 		
 		flags |= FLAG_TAKEN;
 		if (isBlock) {
