@@ -88,22 +88,40 @@
 		createMesh: function() {
 			var self = this;
 			this.blockCount = 0;
+			var surfaces = {};
 			this.forEachBlock(function(x,y,z) {
-				if (self.getIDAt(x,y,z) > 0)
+				var id = self.getIDAt(x,y,z);
+				if (id > 0) {
 					self.blockCount++;
+					if (id in surfaces) {
+						surfaces[id].blockCount++;
+					} else {
+						surfaces[id] = {
+							blockCount: 1,
+							blockIndex: 0,
+							material: resources.materials[Block.blocks[id].material] };
+					}
+				}
 			});
 			
 			// Allocate RAM and fill those buffers
 			
 			var vertexBuffer = new Float32Array(self.blockCount * cubeVertices.length);
-			// note: maximum is 65536 vertices because Uint32Array not supported by GL ES
-			var vertexIndexBuffer = new Uint16Array(self.blockCount * cubeVertexIndices.length);
 			var textureCoordBuffer = new Float32Array(self.blockCount * cubeTextureCoordinates.length);
 			var normalBuffer = new Float32Array(self.blockCount * cubeVertexNormals.length);
 			
+			for (var id in surfaces) {
+				var surface = surfaces[id];
+				// note: maximum is 65536 vertices because Uint32Array not supported by GL ES
+				surface.triangles = new Uint16Array(surface.blockCount * cubeVertexIndices.length);
+			}
+			
 			var blockIndex = 0;
 			this.forEachBlock(function(x,y,z) {
-				if (self.getIDAt(x,y,z) > 0) {
+				var id = self.getIDAt(x,y,z);
+				if (id > 0) {
+					var surface = surfaces[id];
+					
 					// Vertices
 					// Copy the vertex template (for a 1x1x1 block at (0,0,0)) and adjust the
 					// coordinates to match the current block's position
@@ -117,7 +135,7 @@
 					// Copy the vertex index template (for cube with vertices starting from 0) and
 					// add the current block's vertex index offset
 					for (var i = 0; i < cubeVertexIndices.length; i++) {
-						vertexIndexBuffer[blockIndex * cubeVertexIndices.length + i]
+						surface.triangles[surface.blockIndex * cubeVertexIndices.length + i]
 							= cubeVertexIndices[i] + (blockIndex * cubeVertices.length / 3);
 					}
 					
@@ -136,20 +154,23 @@
 					}
 	
 					blockIndex++;
+					surface.blockIndex++;
 				}
 			});
 			
 			// mesh is up-to-date
 			this.changed = false;
 			
+			var surfaceArray = [];
+			for (var id in surfaces) {
+				surfaceArray.push(surfaces[id]);
+			}
+			
 			return new Mesh({
 				vertices: vertexBuffer,
 				textureCoords: textureCoordBuffer,
 				normals: normalBuffer,
-				surfaces: [{
-					material: resources.materials.block,
-					triangles: vertexIndexBuffer
-				}]
+				surfaces: surfaceArray
 			});
 		},
 		

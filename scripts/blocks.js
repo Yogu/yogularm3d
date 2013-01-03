@@ -12,7 +12,18 @@
 	Block.blocks = {
 		solid: {
 			id: 1,
-			isBlock: true
+			isBlock: true,
+			material: 'block'
+		},
+		transparent: {
+			id: 2,
+			isBlock: false,
+			material: 'transparent'
 		}
 	};
+	
+	for (var name in Block.blocks) {
+		var block = Block.blocks[name];
+		Block.blocks[block.id] = block;
+	}
 })();
