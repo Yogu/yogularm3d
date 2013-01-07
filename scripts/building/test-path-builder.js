@@ -6,6 +6,7 @@
 	TestPathBuilder = function(buildingPath) {
 		this.path = buildingPath;
 		this.world = this.path.world;
+		this.history = [];
 	};
 
 	TestPathBuilder.prototype = {
@@ -30,6 +31,8 @@
 				if (this.world.place(blockPos, Block.blocks.solid)) {
 					if (this.path.setWaypoint(target)) {
 						this.path.popAndApply();
+						this.history.push(this.path.currentWaypoint);
+						this.buildTunnel();
 						break;
 					}
 				}
@@ -48,6 +51,19 @@
 				var vec = this.path.lastTrace[i];
 				this.world.place(vec, Block.blocks.transparent);
 			}*/
+		},
+		buildTunnel: function() {
+			if (this.history.length > 5) {
+				var point = this.history.shift();
+				var s = 5;
+				for (var x = -s; x <= s; x++) {
+					for (var y = -s; y <= s; y++) {
+						for (var z = -s; z <= s; z++) {
+							this.world.place([point[0] + x, point[1] + y, point[2] + z], Block.blocks.solid);
+						}
+					}	
+				}
+			}
 		}
 	};
 })();

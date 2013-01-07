@@ -2,6 +2,9 @@
 	"block": {
 		"texture": "texture.png"
 	},
+	"blue": {
+		"texture": "blue.png"
+	},
 	
 	"shadow": {
 		"texture": "shadow.png"

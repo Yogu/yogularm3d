@@ -75,7 +75,7 @@
 			if (trace === false)
 				return false;
 			
-			for (var i = 0; i < trace; i++) {
+			for (var i = 0; i < trace.length; i++) {
 				this.world.keepFree(trace[i]);
 			}
 			this.world.keepFree(target);

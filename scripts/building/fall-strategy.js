@@ -41,7 +41,7 @@
 			maxHeight -= x * x * parabolaFactor;
 		}
 		
-		console.log('    max height: ' + maxHeight)
+		console.log('    max height: ' + maxHeight);
 		
 		if (target[1] > maxHeight) {
 			console.log('    failed, target too high');

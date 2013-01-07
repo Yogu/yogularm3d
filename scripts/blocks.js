@@ -19,7 +19,12 @@
 			id: 2,
 			isBlock: false,
 			material: 'transparent'
-		}
+		},
+		blue: {
+			id: 3,
+			isBlock: true,
+			material: 'blue'
+		},
 	};
 	
 	for (var name in Block.blocks) {
