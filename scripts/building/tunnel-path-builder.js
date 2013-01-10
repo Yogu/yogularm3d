@@ -53,13 +53,16 @@
 			}*/
 		},
 		buildTunnel: function() {
-			if (this.history.length > 5) {
+			if (this.history.length > 20) {
 				var point = this.history.shift();
 				var s = 5;
 				for (var x = -s; x <= s; x++) {
 					for (var y = -s; y <= s; y++) {
 						for (var z = -s; z <= s; z++) {
-							this.world.place([point[0] + x, point[1] + y, point[2] + z], Block.blocks.solid);
+							var vec = [point[0] + x, point[1] + y, point[2] + z];
+							if (this.world.isFree(vec)) {
+								this.world.place(vec, Block.blocks.grass);
+							}
 						}
 					}	
 				}

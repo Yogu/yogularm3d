@@ -2,12 +2,12 @@
 	var DEFAULT_RENDER_CHUNK_RADIUS = 3; // a cube of chunks with side length 2n+1 is rendered
 	var RENDER_CHUNK_RADII = [ 6, 3, 2 ];
 	var PLAYER_ROTATE_SPEED = 20;
-	var CAMERA_HORIZONTAL_SPEED = 2;
-	var CAMERA_VERTICAL_SPEED = 4;
+	var CAMERA_HORIZONTAL_SPEED = 4;
+	var CAMERA_VERTICAL_SPEED = 2;
 	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
-	var PLAYER_CAMERA_VERTICAL_DISTANCE = 1.5;
+	var PLAYER_CAMERA_VERTICAL_DISTANCE = 2;
 	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
-	var BUILD_DISTANCE = 100;
+	var BUILD_DISTANCE = 5;
 	var SPEED_OF_DEATH = -20;
 
 	var PLAYER_SPEED = 5;
@@ -31,7 +31,7 @@
 	Game.prototype = {
 		resetWorld: function() {
 			this.world = new World();
-			this.builder = new TestBuilder(this.world, TestPathBuilder);
+			this.builder = new TestBuilder(this.world, RandomPathBuilder);
 			this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
 			this.setUpPlayer();
 			this.setUpCamera();

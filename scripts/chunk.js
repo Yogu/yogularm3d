@@ -23,14 +23,18 @@
 	};
 	
 	Chunk.prototype = {
-		getIDAt: function(x,y,z) {
+		getIDAt: function(x,y,z, disableException) {
 			if (x.length != null) {
 				z = x[2];
 				y = x[1];
 				x = x[0];
 			}
-			if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE)
-				throw "Illegal argument for id(x,y,z)";
+			if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE) {
+				if (disableException === true)
+					return 0;
+				else
+					throw "Illegal argument for id(x,y,z)";
+			}
 			
 			return this.blockIDs[x * SIZE * SIZE + y * SIZE + z];
 		},
@@ -121,6 +125,13 @@
 				var id = self.getIDAt(x,y,z);
 				if (id > 0) {
 					var surface = surfaces[id];
+					
+					if (self.getIDAt(x+1,y,z, true) > 0 && self.getIDAt(x-1,y,z, true) > 0 &&
+						self.getIDAt(x,y+1,z, true) > 0 && self.getIDAt(x,y-1,z, true) > 0 &&
+						self.getIDAt(x,y,z+1, true) > 0 && self.getIDAt(x,y,z-1, true) > 0) {
+						// this block is completely hidden.
+						return;
+					}
 					
 					// Vertices
 					// Copy the vertex template (for a 1x1x1 block at (0,0,0)) and adjust the

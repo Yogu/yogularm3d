@@ -30,6 +30,8 @@ self.Materials = function(url) {
 			r.bindTexture(null); 
 		if ('color' in material)
 			r.setColor(material.color);
+		else
+			r.setColor([1,1,1,1]);
 	}
 	
 	function bindTexture(r, fileName) {
