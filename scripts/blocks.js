@@ -29,9 +29,9 @@
 			id: 4,
 			isBlock: true,
 			material: 'grass',
-			onEntityCollision: function(blockPosition, entity) {
-				if (entity.position[1] > blockPosition[1])
-					entity.momentum[1] = entity.mass * 10;
+			onCollision: function(blockPosition, body, details) {
+				if (body instanceof Entity && details.axis == 1 && details.direction < 0)
+					body.momentum[1] = body.mass * Game.PLAYER_JUMP_SPEED;
 			}
 		}
 	};

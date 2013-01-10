@@ -47,8 +47,6 @@
 			console.log('    failed, target too high');
 			return false;
 		}
-			
-		console.log('    first step succeeded');
 		
 		// TODO: check if there is space
 		var trace = [];
@@ -77,6 +75,13 @@
 					var parabolaY2 = source[1] - (dist + 1) * (dist + 1) * parabolaFactor;
 					yMin = Math.floor(Math.min(parabolaY1, parabolaY2));
 					yMax = Math.ceil(Math.max(parabolaY1, parabolaY2)) + 1 /* player height */;
+					
+					// do not trace blocks directly below target
+					if (x == target[0] && z == target[2])
+						yMin = Math.max(yMin, target[1] + 1);
+					
+					// never go below both source and target
+					yMin = Math.max(yMin, Math.min(source[1], target[1]));
 				}
 				
 				// we're never lower than source _and_ target
@@ -84,13 +89,16 @@
 				
 				for (var y = yMin; y <= yMax; y++) {
 					var tracePoint = [x, y, z];
-					if (!world.isFree(tracePoint))
+					if (!world.isFree(tracePoint)) {
+						console.log("   failed because " + debug.formatVector(tracePoint) + " is blocked");
 						return false;
+					}
 					trace.push(tracePoint);
 				}
 			}
 		}
-			
+
+		console.log("   ok.");
 		return trace;
 	};};
 

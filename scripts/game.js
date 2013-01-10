@@ -4,14 +4,14 @@
 	var PLAYER_ROTATE_SPEED = 20;
 	var CAMERA_HORIZONTAL_SPEED = 4;
 	var CAMERA_VERTICAL_SPEED = 2;
-	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 4;
-	var PLAYER_CAMERA_VERTICAL_DISTANCE = 2;
+	var PLAYER_CAMERA_HORIZONTAL_DISTANCE = 8;
+	var PLAYER_CAMERA_VERTICAL_DISTANCE = 4;
 	var CAMERA_ROTATE_SPEED = 4 * Math.PI;
-	var BUILD_DISTANCE = 5;
+	var BUILD_DISTANCE = 30;
 	var SPEED_OF_DEATH = -20;
 
 	var PLAYER_SPEED = 5;
-	var PLAYER_JUMP_SPEED = 5.2;
+	var PLAYER_JUMP_SPEED = 6.5;//5.2;
 	var PLAYER_ACCELERATION = 40;
 	var PLAYER_AIR_ACCELERATION = 20;
 
@@ -31,7 +31,7 @@
 	Game.prototype = {
 		resetWorld: function() {
 			this.world = new World();
-			this.builder = new TestBuilder(this.world, RandomPathBuilder);
+			this.builder = new TestBuilder(this.world, TrampolinePathBuilder);
 			this.world.renderChunkRadius = DEFAULT_RENDER_CHUNK_RADIUS;
 			this.setUpPlayer();
 			this.setUpCamera();
@@ -135,7 +135,7 @@
 			function jump() {
 				if (input.isJump() && world.player.touchesGround()) {
 					input.resetJump();
-					world.player.momentum[1] += PLAYER_JUMP_SPEED * world.player.mass;
+					world.player.momentum[1] = PLAYER_JUMP_SPEED * world.player.mass;
 				}
 			}
 

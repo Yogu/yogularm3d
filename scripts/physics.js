@@ -35,7 +35,7 @@
 		 * @return the target if reached without collision, or the last
 		 *   reachable point on the straight
 		 */
-		this.getImpactOnMove = function(position, axis, distance, world) {
+		this.getImpactOnMove = function(position, axis, distance, world, info) {
 			// For simplicity, the comments and identifiers will assume a move
 			// along the x axis.
 			var axis1 = axis == 0 ? 1 : axis == 1 ? 2 : 0;
@@ -70,7 +70,10 @@
 				// would collide with
 				for (var y = startY; y <= endY; y++) {
 					for (var z = startZ; z <= endZ; z++) {
-						if (world.isBlocked(getRealCoordinates(x,y,z))) {
+						var blockCoordinates = getRealCoordinates(x,y,z);
+						if (world.isBlocked(blockCoordinates)) {
+							if (info !== undefined)
+								info.impactBlock = blockCoordinates;
 							if (distance < 0) // add 1 to get the right edge
 								x = x - self.minVector[axis] + 1;
 							else // left edge
@@ -81,6 +84,8 @@
 					}
 				}
 			}
+			if (info !== undefined)
+				info.impactBlock = null;
 			// no collision
 			return getRealCoordinates(
 				position[axis] + distance, position[axis1], position[axis2]);
@@ -148,20 +153,30 @@
 	};
 	
 	Body.prototype = {
-		getImpact: function(target) {
+		getImpactOnMove: function(source, axis, distance, fireCollisionEvents) {
+			var info = {};
+			var impact = this.boundingBox.getImpactOnMove(
+				source, axis, distance, this.world, info);
+			if (fireCollisionEvents === true && info.impactBlock !== null) {
+				var id = this.world.getIDAt(info.impactBlock);
+				if (id > 0 && Block.blocks[id].onCollision)
+					Block.blocks[id].onCollision(info.impactBlock, this, { axis: axis, direction: distance / Math.abs(distance)});
+			}
+			return impact;
+		},
+			
+		getImpact: function(target, fireCollisionEvents) {
 			var impact = this.position;
 			for (var axis = 0; axis < 3; axis++) {
 				if (target[axis] !== this.position[axis]) {
-					impact = this.boundingBox.getImpactOnMove(
-						impact, axis, target[axis] - this.position[axis],
-						this.world);
+					impact = this.getImpactOnMove(impact, axis, target[axis] - this.position[axis], fireCollisionEvents);
 				}
 			}
 			return impact;
 		},
 			
 		tryMoveTo: function(target) {
-			this.position = this.getImpact(target);
+			this.position = this.getImpact(target, true);
 		},
 			
 		touchesGround: function() {
@@ -222,8 +237,7 @@
 			for (var axis = 0; axis < 3; axis++) {
 				if (this.momentum[axis] != 0) {
 					var delta = this.momentum[axis] * elapsed / this.mass;
-					var impact = this.boundingBox.getImpactOnMove(
-							this.position, axis, delta, this.world);
+					var impact = this.getImpactOnMove(this.position, axis, delta, true);
 					// Zero the momentum on collision
 					if (Math.abs(this.position[axis] + delta - impact[axis])
 						> 0.01)
